@@ -19,8 +19,8 @@ main = do
 	xmonad $ defaults
 		{ logHook = dynamicLogWithPP $ xmobarPP
 			{ ppOutput = hPutStrLn xmproc
-			, ppTitle = xmobarColor colorGreen "" . shorten 100
-			, ppCurrent = xmobarColor colorGreen ""
+			, ppTitle = xmobarColor colorBlue "" . shorten 100
+			, ppCurrent = xmobarColor colorBlue ""
 			, ppSep = " "
 			}
 		, manageHook = manageDocks <+> myManageHook
@@ -42,11 +42,14 @@ defaults = defaultConfig
 	, startupHook 		= return ()
 	}
 
-myWorkspaces = ["α","β","γ","δ","ε","ζ","η","θ","ι"]
+myWorkspaces = ["1","2","3","4","5","6","7","8","9"]
 
 myManageHook = composeAll									-- xprop | grep WM_CLASS
-	[ className	=? "Google-chrome"	--> doShift "β"
+	[ className	=? "Google-chrome"	--> doShift "2"
+	, className 	=? "Java Console"	--> doShift "8"
 	, resource 	=? "desktop_window"	--> doIgnore
+	, className	=? "Google-chrome"	--> doFloat
+	, className 	=? "Java Console"	--> doFloat
 	, className 	=? "Galculator"		--> doFloat
 	, className 	=? "Steam"		--> doFloat
 	, className 	=? "Gimp"		--> doFloat
@@ -54,21 +57,22 @@ myManageHook = composeAll									-- xprop | grep WM_CLASS
 	, isFullscreen	--> (doF W.focusDown <+> doFullFloat)]
 
 myLayout = avoidStruts (
-	Tall 1 (3/100) (1/2) |||
-	Mirror (Tall 1 (3/100) (1/2)) |||
-	tabbed shrinkText tabConfig |||
 	Full |||
-	spiral (6/7)) |||
+--	tabbed shrinkText tabConfig |||
+	Tall 1 (3/100) (1/2) |||
+	Mirror (Tall 1 (3/100) (1/2))) |||
+--	spiral (6/7)) |||
 	noBorders (fullscreenFull Full)
 
 colorBlack	= "#020202"
 colorGray	= "#7c7c7c"
-colorGreen	= "#4e9a06"
-colorWhite	= "eeeeeee"
+colorGreen	= "#5bce2d"
+colorWhite	= "#eeeeee"
+colorBlue	= "#7bb8e2"
 
 tabConfig = defaultTheme 
 	{ activeBorderColor	= colorGray
-	, activeTextColor	= colorGreen
+	, activeTextColor	= colorBlue
 	, activeColor		= colorBlack
 	, inactiveBorderColor	= colorGray
 	, inactiveTextColor	= colorWhite
@@ -77,8 +81,12 @@ tabConfig = defaultTheme
 
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 	[ ((modMask, xK_e), spawn $ XMonad.terminal conf)					-- Terminal
+	, ((modMask, xK_i), spawn "idea")							-- IntelliJ IDEA
+	, ((modMask, xK_g), spawn "google-chrome")						-- Chrome
+	, ((modMask, xK_f), spawn "firefox")							-- Firefox
+	, ((modMask, xK_x), spawn "xkill")							-- X kill
 	, ((modMask .|. shiftMask, xK_l), spawn "gnome-screensaver-command --lock")		-- Lock with gnome
-	, ((modMask, xK_d), spawn "dmenu_run -nb '#121212' -nf '#323232' -sb green -sf black -fn 'terminus-8' -b")
+	, ((modMask, xK_d), spawn "dmenu_run -nb '#000000' -nf '#aaaaaa' -sb green -sf black -fn 'terminus-8' -b")
 	, ((modMask, xK_q), kill)								-- Close focused window.
 	, ((modMask, xK_space), sendMessage NextLayout)						-- Cycle through the available layout algorithms.
 	, ((modMask .|. shiftMask, xK_space), setLayout $ XMonad.layoutHook conf)		-- Reset the layouts on the current workspace to default.
@@ -104,7 +112,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 	    , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]
 	] ++
 	[ ((m .|. modMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
-	    | (key, sc) <- zip [xK_i, xK_o, xK_p] [0..]
+	    | (key, sc) <- zip [xK_u, xK_o, xK_p] [0..]
 	    , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
 	]
  
