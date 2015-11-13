@@ -5,6 +5,7 @@ urxvtd -q -o -f
 
 xloadimage -onroot -fullscreen ~/.i3/bg.jpg
 
-unclutter -idle 3 -jitter 5 -noevents -root &
+# unclutter -idle 3 -jitter 5 -noevents -root &
+xbanish &
 
 exec i3
