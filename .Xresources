@@ -8,11 +8,11 @@
 ! URxvt*skipScroll:                     boolean
 ! URxvt*pastableTabs:                   boolean
 
-URxvt.font: 			xft:Bitstream Vera Sans Mono:pixelsize=12
+URxvt.font:                     xft:DejaVu Sans Mono for Powerline:size=9
 URxvt*scrollstyle:		plain
 URxvt*scrollBar:		true
 URxvt*scrollBar_right:		true 
-! URxvt.letterSpace: 		-1
+URxvt.letterSpace: 		-1
 URxvt.intensityStyles: 		false
 
 ! Common
