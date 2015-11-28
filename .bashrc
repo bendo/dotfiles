@@ -16,16 +16,6 @@ function git_branch {
     fi
 }
 
-function svn_branch {
-  export svnbranch=[$(svn info 2>/dev/null | grep '^URL:' | egrep -o '(tags|branches)/[^/]+|trunk' | egrep -o '[^/]+$' | sed -e 's/\(.*\)/\1/')]
-    if [ "$?" -ne 0 ]
-      then svnbranch=
-    fi
-    if [[ "${svnbranch}" == "[]" ]]
-      then svnbranch=
-    fi
-}
- 
 # set usercolor based on whether we are running with Admin privs
 function user_color {
     id | grep "Admin" > /dev/null
@@ -56,9 +46,8 @@ function settitle() {
 }
  
 export EDITOR=vim
-export PROMPT_COMMAND='settitle; git_branch; svn_branch; history -a;'
-# git+svn - export PS1='\[\e${usercolor}\][\u]\[\e${gitcolor}\]${gitbranch}\[\e${gitcolor}\]${svnbranch}\[\e${cwdcolor}\][$PWD]\[\e${inputcolor}\] ➤ '
-export PS1='\[\e${usercolor}\][\u]\[\e${gitcolor}\]${svnbranch}${gitbranch}\[\e${cwdcolor}\][$PWD]\[\e${inputcolor}\] ➤ '
+export PROMPT_COMMAND='settitle; git_branch; history -a;'
+export PS1='\[\e${usercolor}\][\u]\[\e${gitcolor}\]${gitbranch}\[\e${cwdcolor}\][$PWD]\[\e${inputcolor}\] ➤ '
 export PS2=' | '
 
 unset color_prompt force_color_prompt
