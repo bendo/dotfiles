@@ -188,6 +188,9 @@
 (setq search-highlight t)
 (setq query-replace-highlight t)
 
+;;; arduino-mode
+(init-el-require-package arduino-mode)
+
 ;;; emmet-mode
 (init-el-require-package emmet-mode)
 (add-hook 'sgml-mode-hook #'emmet-mode)
