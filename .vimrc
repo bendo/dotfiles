@@ -12,6 +12,8 @@ Plug 'kien/ctrlp.vim'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'altercation/vim-colors-solarized'
 Plug 'bling/vim-airline'
+" Git
+Plug 'airblade/vim-gitgutter'
 " File types
 Plug 'tpope/vim-markdown'
 "Plug 'LaTeX-Box-Team/LaTeX-Box'
@@ -58,6 +60,10 @@ let g:tex_flavor = 'latex'
 let g:vimtex_quickfix_open_on_warning=0
 
 let g:cpp_class_scope_highlight = 1
+
+" Git ========================================================================
+set updatetime=250
+let g:gitgutter_max_signs = 500
 
 " GUI ========================================================================
 set background=dark
