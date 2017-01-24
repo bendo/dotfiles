@@ -27,11 +27,28 @@ function user_color {
     fi
 }
 
+function git_color {
+    if [[ $(git rev-parse --abbrev-ref HEAD 2>/dev/null) = maste* ]]; then
+        lambdacolor='[1;31m';
+    else
+        lambdacolor='[1;33m';
+    fi;
+}
+
+function lambda_color {
+    if [[ -d .git ]]; then
+        git_color
+    else
+        lambdacolor='[1;32m';
+    fi
+}
+
 # Set prompt and window title
 inputcolor='[0;37m'
 cwdcolor='[0;34m'
 gitcolor='[1;31m'
 user_color
+lambda_color
 
 # Setup for window title
 export TTYNAME=$$
@@ -46,8 +63,10 @@ function settitle() {
 }
  
 export EDITOR=vim
-export PROMPT_COMMAND='settitle; git_branch; history -a;'
-export PS1='\[\e${usercolor}\][\u]\[\e${gitcolor}\]${gitbranch}\[\e${cwdcolor}\][$PWD]\[\e${inputcolor}\] ➤ '
+#export PROMPT_COMMAND='settitle; git_branch; history -a;'
+export PROMPT_COMMAND='settitle; lambda_color; history -a;'
+#export PS1='\[\e${usercolor}\][\u]\[\e${gitcolor}\]${gitbranch}\[\e${cwdcolor}\][$PWD]\[\e${inputcolor}\] ➤ '
+export PS1='\[\e${lambdacolor}\]λ\[\e${inputcolor}\] '
 export PS2=' | '
 
 unset color_prompt force_color_prompt
