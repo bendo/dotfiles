@@ -72,9 +72,9 @@ let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|dist'
 
 " JS =========================================================================
 " Map the conceal characters to their expanded forms.
-inoremap <silent> @ <C-r>=syntax_expand#expand("@", "this")<CR>
-inoremap <silent> # <C-r>=syntax_expand#expand("#", "prototype")<CR>
-inoremap <silent> < <C-r>=syntax_expand#expand_head("<", "return")<CR>
+autocmd FileType javascript inoremap <silent> <buffer> this <C-r>=syntax_expandprototypeexpand("this", "this")<CR>
+autocmd FileType javascript inoremap <silent> <buffer> prototype <C-r>=syntax_expandprototypeexpand("prototype", ".prototype.")<CR>
+autocmd FileType javascript inoremap <silent> <buffer> < <C-r>=syntax_expandprototypeexpand_head("<", "return")<CR>
 
 " even when your cursor is on top of them.
 set conceallevel=1
