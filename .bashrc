@@ -17,14 +17,15 @@ function git_branch {
 }
 
 function lambda_color {
-    if [[ -d .git ]]; then
-        if [[ $(git status -uno 2>/dev/null) = *master* ]]; then
-            lambdacolor='[1;31m';
-        else
-            lambdacolor='[1;33m';
-        fi;
-    else
+    branch=$(git status -uno 2>/dev/null)
+    if [[ $branch == *master* ]]
+    then
+        lambdacolor='[1;31m';
+    elif [[ $branch == "" ]]
+    then
         lambdacolor='[1;32m';
+    else
+        lambdacolor='[1;33m';
     fi
 }
 
@@ -80,5 +81,6 @@ alias ls='ls --color=auto'
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -ltr'
+alias f='sudo find / | grep '
 
-export PATH=$HOME/npm-global/bin:$PATH:$HOME/.gem/ruby/2.2.0/bin:$PATH:$HOME/bin:$PATH
+export PATH=$HOME/npm-global/bin:$PATH:$HOME/.gem/ruby/2.4.0/bin:$PATH:$HOME/bin:$PATH
