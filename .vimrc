@@ -18,7 +18,6 @@ Plug 'airblade/vim-gitgutter'
 Plug 'kshenoy/vim-signature'
 " JS
 Plug 'pangloss/vim-javascript'
-Plug 'Wolfy87/vim-syntax-expand' "???
 " File types
 Plug 'tpope/vim-markdown'
 "Plug 'LaTeX-Box-Team/LaTeX-Box'
@@ -70,21 +69,8 @@ set wildignore+=*.dvi,*.log,*.out,*.bbl,*.blg,*.fdb_latexmk,*.fls,*.synctex.gz
 
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|dist'
 
-" JS =========================================================================
-" Map the conceal characters to their expanded forms.
-autocmd FileType javascript inoremap <silent> <buffer> this <C-r>=syntax_expandprototypeexpand("this", "this")<CR>
-autocmd FileType javascript inoremap <silent> <buffer> prototype <C-r>=syntax_expandprototypeexpand("prototype", ".prototype.")<CR>
-autocmd FileType javascript inoremap <silent> <buffer> < <C-r>=syntax_expandprototypeexpand_head("<", "return")<CR>
-
-" even when your cursor is on top of them.
-set conceallevel=1
-set concealcursor=nvic
-
-" vim-javascript conceal settings.
-let g:javascript_conceal_function = "λ"
-let g:javascript_conceal_this = "@"
-let g:javascript_conceal_return = "<"
-let g:javascript_conceal_prototype = "#"
+" Press F4 to toggle highlighting on/off, and show current value.
+:noremap <F4> :set hlsearch! hlsearch?<CR>
 
 " Filetypes ==================================================================
 autocmd FileType html,xhtml,xml,xsl,htmldjango setlocal shiftwidth=2
