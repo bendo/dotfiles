@@ -1,0 +1,6 @@
+subcp=windows-1250
+font=/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf
+subfont-text-scale="2"
+subfont-blur="4"
+subfont-outline="4"
+vf=hue=0.0:1.0,eq2=1.0:1.0:0.1:1.0:1.0:1.0:1.0:1.0
