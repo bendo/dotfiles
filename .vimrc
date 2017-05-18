@@ -2,33 +2,27 @@ call plug#begin()
 " Editing
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-surround'
 " UI and apps
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
-Plug 'kien/ctrlp.vim'
-Plug 'NLKNguyen/papercolor-theme'
 Plug 'altercation/vim-colors-solarized'
 Plug 'bling/vim-airline'
-Plug 'junegunn/vim-easy-align'
 " Git
-Plug 'airblade/vim-gitgutter'
-Plug 'kshenoy/vim-signature'
-" JS
-Plug 'pangloss/vim-javascript'
+Plug 'airblade/vim-gitgutter' " shows changes on left side
+Plug 'kshenoy/vim-signature'  " shows registers on left side
 " File types
 Plug 'tpope/vim-markdown'
-"Plug 'LaTeX-Box-Team/LaTeX-Box'
 Plug 'lervag/vimtex'
-Plug 'ap/vim-css-color'
-Plug 'groenewege/vim-less'
-Plug 'vitalk/vim-lesscss'  "Autocompiling LESS files
+Plug 'Shougo/vimproc.vim', {'do' : 'make'}
 call plug#end()
 
+execute pathogen#infect()
+
 " Tabs & indentation =========================================================
+syntax on
 filetype plugin indent on
+
 set expandtab
 set shiftwidth=4
 set textwidth=79
@@ -38,6 +32,10 @@ set softtabstop=4
 set shortmess=I
 set visualbell
 set hidden
+
+set nowrap
+set showmode
+set mouse=a 
 
 " Lines ======================================================================
 set linebreak
@@ -65,25 +63,64 @@ set wildignore+=*.*~,*~
 set wildignore+=*.swp,.lock,.DS_Store,._*,tags.lock
 " LaTeX
 set wildignore+=*.dvi,*.log,*.out,*.bbl,*.blg,*.fdb_latexmk,*.fls,*.synctex.gz
+" Wild =======================================================================
 
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|dist'
 
 " Press F4 to toggle highlighting on/off, and show current value.
-:noremap <F4> :set hlsearch! hlsearch?<CR>
+nnoremap <F4> :set hlsearch! hlsearch?<CR>
 
-nnoremap <F2> :<C-U>setlocal lcs=tab:➜.,trail:-,eol:↵ list! list? <CR>
+nnoremap <F2> :<C-U>setlocal lcs=tab:➜.,trail:-,eol:↵ list! list?<CR>
 
 " Filetypes ==================================================================
 autocmd FileType c,ino,arduino setlocal noexpandtab shiftwidth=8 tabstop=8
 autocmd FileType html,xhtml,xml,xsl,htmldjango setlocal shiftwidth=2
 autocmd FileType make setlocal noexpandtab nosmarttab
-let python_highlight_all = 1
 au FileType tex setlocal shiftwidth=2 spell
 au BufRead,BufNewFile *.ino,*.pde set filetype=c
+
+let python_highlight_all = 1
 let g:tex_flavor = 'latex'
 let g:vimtex_quickfix_open_on_warning=0
-
 let g:cpp_class_scope_highlight = 1
+
+" Syntastic ==================================================================
+map <Leader>s :SyntasticToggleMode<CR>
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 0
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+
+" ghc-mod ====================================================================
+map <silent> tw :GhcModTypeInsert<CR>
+map <silent> ts :GhcModSplitFunCase<CR>
+map <silent> tq :GhcModType<CR>
+map <silent> te :GhcModTypeClear<CR>
+
+" supertab ==================================================================
+let g:SuperTabDefaultCompletionType = '<c-x><c-o>'
+
+if has("gui_running")
+  imap <c-space> <c-r>=SuperTabAlternateCompletion("\<lt>c-x>\<lt>c-o>")<cr>
+else " no gui
+  if has("unix")
+    inoremap <Nul> <c-r>=SuperTabAlternateCompletion("\<lt>c-x>\<lt>c-o>")<cr>
+  endif
+endif
+
+let g:haskellmode_completion_ghc = 1
+autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+
+" tabularize =================================================================
+let g:haskell_tabular = 1
+
+vmap a= :Tabularize /=<CR>
+vmap a; :Tabularize /::<CR>
+vmap a- :Tabularize /-><CR>
 
 " Git ========================================================================
 set updatetime=250
@@ -95,9 +132,5 @@ colorscheme solarized
 
 let g:airline_powerline_fonts = 1
 
-nmap ga <Plug>(EasyAlign)
-
 nnoremap <c-\> :CtrlP<CR>
 nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
-
-syntax on
