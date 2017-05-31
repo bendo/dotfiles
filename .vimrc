@@ -15,6 +15,8 @@ Plug 'kshenoy/vim-signature'  " shows registers on left side
 Plug 'tpope/vim-markdown'
 Plug 'lervag/vimtex'
 Plug 'Shougo/vimproc.vim', {'do' : 'make'}
+" Elm
+Plug 'elmcast/elm-vim'
 call plug#end()
 
 execute pathogen#infect()
@@ -66,6 +68,9 @@ set wildignore+=*.dvi,*.log,*.out,*.bbl,*.blg,*.fdb_latexmk,*.fls,*.synctex.gz
 " Wild =======================================================================
 
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|dist'
+
+"Elm format on save
+let g:elm_format_autosave = 1
 
 " Press F4 to toggle highlighting on/off, and show current value.
 nnoremap <F4> :set hlsearch! hlsearch?<CR>
