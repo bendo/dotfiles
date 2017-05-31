@@ -1,0 +1,8 @@
+import Data.List
+import Data.String
+
+:set prompt "λ "
+
+let escape arg = "'" ++ concatMap (\c -> if c == '\'' then "'\"'\"'" else [c]) arg ++ "'"
+:def! search return . (":! hoogle --color " ++) . escape
+:def! doc return . (":! hoogle --info " ++) . escape
