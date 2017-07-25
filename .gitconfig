@@ -19,3 +19,7 @@
     rebase = true
 [log]
     date = local
+[diff]
+    tool = meld
+[merge]
+    tool = meld
