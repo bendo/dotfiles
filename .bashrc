@@ -46,7 +46,7 @@ function settitle() {
   t="$TTYNAME $p"
   echo -ne "\e]2;$t\a\e]1;$t\a";
 }
- 
+
 export EDITOR=vim
 #export PROMPT_COMMAND='settitle; git_branch; history -a;'
 export PROMPT_COMMAND='settitle; lambda_color; history -a;'
@@ -83,4 +83,6 @@ alias la='ls -A'
 alias l='ls -ltr'
 alias f='sudo find / | grep '
 
-export PATH=$HOME/npm-global/bin:$PATH:$HOME/.gem/ruby/2.4.0/bin:$PATH:$HOME/bin:$PATH
+export NPM_GLOBAL="${HOME}/.npm-global"
+export NODE_PATH="$NPM_GLOBAL/lib/node_modules:$NODE_PATH"
+export PATH=$PATH:$NPM_GLOBAL/bin:$HOME/.gem/ruby/2.4.0/bin:$HOME/bin:$HOME/.local/bin:$HOME/.cabal/bin
