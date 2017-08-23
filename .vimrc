@@ -139,3 +139,7 @@ let g:airline_powerline_fonts = 1
 
 nnoremap <c-\> :CtrlP<CR>
 nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
+
+" Use left / right arrows to switch buffers
+nnoremap <silent> <right> :bnext<cr>
+nnoremap <silent> <left> :bprev<cr>
