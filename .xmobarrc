@@ -6,7 +6,7 @@ Config
        , borderColor = "black"
        , border = TopB
        , bgColor = "black"
-       , fgColor = "grey"
+       , fgColor = "#586e75"
        , alpha = 100
        , position = Top
        , textOffset = -1
@@ -62,6 +62,5 @@ Config
             ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %StdinReader% }\
-                    \{ %vol%   %battery%   %wlp4s0wi%   %date%   %EDDM%   %kb%"
+       , template = " %StdinReader% }{ %vol%   %battery%   %wlp4s0wi%   %date%   %EDDM%   %kb% "
        }
