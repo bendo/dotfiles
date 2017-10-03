@@ -21,12 +21,15 @@ main = do
     xmonad $ docks $ defaults din
 
 myLogHook h = dynamicLogWithPP xmobarPP
-    { ppHidden = xmobarColor "white" ""
-    , ppOutput = hPutStrLn h
-    , ppTitle = xmobarColor "blue" ""
+    { ppHidden  = xmobarColor "#6c71c4" ""
+    , ppCurrent = xmobarColor "#b58900" "" . wrap "[" "]"
+    , ppTitle   = xmobarColor "#268bd2" "" . shorten 50
+    , ppVisible = xmobarColor "#839496" "" . wrap "(" ")"
+    , ppUrgent  = xmobarColor "#dc322f" "" . wrap " " " "
+    , ppLayout  = xmobarColor "#2aa198" ""
+    , ppOutput  = hPutStrLn h
     }
 
-myStartupHook :: X ()
 myStartupHook = do
     spawn "xmobar ~/.xmobarrc"
 
@@ -34,8 +37,8 @@ defaults din = def
     { terminal           = "urxvtc"
     , focusFollowsMouse  = False
     , borderWidth        = 1
-    , normalBorderColor  = colorGray
-    , focusedBorderColor = colorGreen
+    , normalBorderColor  = gray
+    , focusedBorderColor = blue
     , modMask            = mod4Mask
     , logHook            = myLogHook din
     , workspaces         = myWorkspaces
@@ -46,18 +49,14 @@ defaults din = def
     , startupHook        = myStartupHook
     }
 
-myWorkspaces = ["1", "2", "code", "web"] ++ map show [5..9]
+myWorkspaces = ["1", "2", "code", "web"] ++ (map show $ [5..9] ++ [0])
 
 myManageHook = composeAll
-    [ className =? "Google-chrome"     --> doShift "2"
-    , className =? "Java Console"      --> doShift "8"
+    [ className =? "Chromium"          --> doShift "4"
     , resource  =? "desktop_window"    --> doIgnore
-    , className =? "Google-chrome"     --> doFloat
-    , className =? "Java Console"      --> doFloat
     , className =? "Galculator"        --> doFloat
-    , className =? "Steam"             --> doFloat
     , className =? "Gimp"              --> doFloat
-    , resource  =? "gpicview"          --> doFloat
+    , className =? "XCalc"             --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
 myLayouts = onWorkspace "web" webLayout $ standardLayout
@@ -68,32 +67,32 @@ myLayouts = onWorkspace "web" webLayout $ standardLayout
                 nmaster = 1
                 ratio = 1/2
                 delta = 2/100
-        webLayout = avoidStruts $ Mirror tall --layout for browser and terminal window
+        webLayout = avoidStruts $ Mirror tall
             where
-                tall = Tall nmaster delta ratio --define tall layout sizes
-                nmaster = 1 --number of windows in master pane1
-                ratio = 3/4 --ratio of master pane size
+                tall = Tall nmaster delta ratio
+                nmaster = 1
+                ratio = 3/4
                 delta = 2/100
 
-colorBlack = "#020202"
-colorGray  = "#7c7c7c"
-colorGreen = "#5bce2d"
-colorWhite = "#eeeeee"
-colorBlue  = "#7bb8e2"
+black = "#020202"
+gray  = "#7c7c7c"
+green = "#5bce2d"
+white = "#eeeeee"
+blue  = "#268bd2"
 
 tabConfig = def
-    { activeBorderColor   = colorGray
-    , activeTextColor     = colorBlue
-    , activeColor         = colorBlack
-    , inactiveBorderColor = colorGray
-    , inactiveTextColor   = colorWhite
-    , inactiveColor       = colorBlack
+    { activeBorderColor   = gray
+    , activeTextColor     = blue
+    , activeColor         = black
+    , inactiveBorderColor = gray
+    , inactiveTextColor   = white
+    , inactiveColor       = black
     }
 
 myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     [ ((modMask, xK_Return), spawn $ XMonad.terminal conf)
     , ((modMask, xK_x), spawn "xkill")
-    , ((modMask .|. shiftMask, xK_l), spawn "sh ~/.xmonad/lock.sh")
+    , ((modMask .|. shiftMask, xK_l), spawn "lock")
     , ((modMask, xK_d), spawn "dmenu_run -fn '-9'")
     , ((modMask, xK_q), kill)
     , ((modMask, xK_space), sendMessage NextLayout)
