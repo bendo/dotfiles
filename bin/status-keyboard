@@ -1,6 +1,5 @@
 #!/bin/sh
 
-stdlayout=us  # standard layout takes "default" color
 stdname=en-us # arbitrary, descriptive only
 
 base03=#002b36
@@ -23,8 +22,10 @@ green=#859900
 layout="$(xkb-switch)"
 
 case $layout in
-    ${stdlayout}) color=$green; icon=" "; name=$stdname ;; # f11c fa-keyboard-o
-    *) color=$magenta; icon=" "; name="de" ;; # f11c fa-keyboard-o
+    "us") color=$green; icon=" "; name=$stdname ;;
+    "de") color=$blue; icon=" "; name=$layout ;;
+    "sk") color=$orange; icon=" "; name=$layout ;;
+    *) color=$magenta; icon=" "; name=$layout ;;
 esac
 
 echo "<fc=$color><fn=1>$icon</fn> ${name}</fc>"
