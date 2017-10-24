@@ -49,7 +49,14 @@ defaults din = def
     , startupHook        = myStartupHook
     }
 
-myWorkspaces = ["1", "2", "code", "web"] ++ (map show $ [5..9] ++ [0])
+{-
+leafWS = "1:<fn=1>\xf06c</fn>"
+dropWS = "2:<fn=1>\xf043</fn>"
+codeWS = "3:<fn=1>\xf1b2</fn>"
+webWS  = "4:<fn=1>\xf268</fn>"
+-}
+
+myWorkspaces = {-[leafWS, dropWS, codeWS, webWS]-} ["1","2","3","web"] ++ map show [5..9] ++ ["λ","π","ω"]
 
 myManageHook = composeAll
     [ className =? "Chromium"          --> doShift "4"
@@ -67,7 +74,7 @@ myLayouts = onWorkspace "web" webLayout $ standardLayout
                 nmaster = 1
                 ratio = 1/2
                 delta = 2/100
-        webLayout = avoidStruts $ Mirror tall
+        webLayout = avoidStruts ( Mirror tall ||| Full )
             where
                 tall = Tall nmaster delta ratio
                 nmaster = 1
@@ -113,11 +120,13 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. shiftMask, xK_q), io (exitWith ExitSuccess))
     , ((modMask, xK_r), restart "xmonad" True)
     , ((0, xK_Print), spawn "scrot '%Y-%m-%d-%T_$wx$h.png' -e 'mv $f ~'")
-    ] ++
+    ]
+    ++
     [ ((m .|. modMask, k), windows $ f i)
-        | (i, k) <- zip (XMonad.workspaces conf) [xK_1 .. xK_9]
+        | (i, k) <- zip (XMonad.workspaces conf) ([xK_1 .. xK_9] ++ [xK_0, xK_minus, xK_equal])
         , (f, m) <- [(W.greedyView, 0), (W.shift, shiftMask)]
-    ] ++
+    ]
+    ++
     [ ((m .|. modMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
         | (key, sc) <- zip [xK_u, xK_o, xK_p] [0..]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
