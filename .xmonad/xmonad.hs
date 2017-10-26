@@ -1,6 +1,7 @@
 import System.IO
 import System.Exit
 import XMonad
+import XMonad.Actions.CopyWindow
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
@@ -49,14 +50,7 @@ defaults din = def
     , startupHook        = myStartupHook
     }
 
-{-
-leafWS = "1:<fn=1>\xf06c</fn>"
-dropWS = "2:<fn=1>\xf043</fn>"
-codeWS = "3:<fn=1>\xf1b2</fn>"
-webWS  = "4:<fn=1>\xf268</fn>"
--}
-
-myWorkspaces = {-[leafWS, dropWS, codeWS, webWS]-} ["1","2","3","web"] ++ map show [5..9] ++ ["λ","π","ω"]
+myWorkspaces = ["1","2","3","4:web"] ++ map show [5..9] ++ ["λ","π","ω"]
 
 myManageHook = composeAll
     [ className =? "Chromium"          --> doShift "4"
@@ -64,17 +58,18 @@ myManageHook = composeAll
     , className =? "Galculator"        --> doFloat
     , className =? "Gimp"              --> doFloat
     , className =? "XCalc"             --> doFloat
+    , className =? "MPlayer"           --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
-myLayouts = onWorkspace "web" webLayout $ standardLayout
+myLayouts = onWorkspaces ["4:web","8","9"] webLayout $ smartBorders $ standardLayout
     where
-        standardLayout = avoidStruts ( Mirror tall ||| tall ||| Grid ||| Full )
+        standardLayout = avoidStruts ( tall ||| Full ||| Mirror tall ||| Grid )
             where
                 tall = Tall nmaster delta ratio
                 nmaster = 1
                 ratio = 1/2
                 delta = 2/100
-        webLayout = avoidStruts ( Mirror tall ||| Full )
+        webLayout = avoidStruts ( Full ||| Mirror tall )
             where
                 tall = Tall nmaster delta ratio
                 nmaster = 1
@@ -109,6 +104,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask, xK_j), windows W.focusDown)
     , ((modMask, xK_k), windows W.focusUp)
     , ((modMask, xK_m), windows W.focusMaster)
+    , ((modMask, xK_c), windows copyToAll)
+    , ((modMask .|. shiftMask, xK_c), killAllOtherCopies)
     --, ((modMask, xK_Return), windows W.swapMaster)
     , ((modMask .|. shiftMask, xK_j), windows W.swapDown)
     , ((modMask .|. shiftMask, xK_k), windows W.swapUp)
