@@ -1,7 +1,5 @@
-import Data.List
-import Data.String
-
-:set prompt "λ "
+:set prompt "\ESC[34mλ \ESC[m"
+:set prompt2 "\ESC[35mλ \ESC[m"
 
 let escape arg = "'" ++ concatMap (\c -> if c == '\'' then "'\"'\"'" else [c]) arg ++ "'"
 :def! search return . (":! hoogle --color " ++) . escape
