@@ -77,12 +77,17 @@ nnoremap <F4> :set hlsearch! hlsearch?<CR>
 
 nnoremap <F2> :<C-U>setlocal lcs=tab:➜.,trail:-,eol:↵ list! list?<CR>
 
+" count occurence of world under the cursor ,*
+map ,* *<C-O>:%s///gn<CR>
+
 " Filetypes ==================================================================
 autocmd FileType c,ino,arduino setlocal noexpandtab shiftwidth=8 tabstop=8
 autocmd FileType html,xhtml,xml,xsl,htmldjango setlocal shiftwidth=2
 autocmd FileType make setlocal noexpandtab nosmarttab
 au FileType tex setlocal shiftwidth=2 spell
 au BufRead,BufNewFile *.ino,*.pde set filetype=c
+
+au FileType haskell nnoremap <buffer> <silent> <F5> :HdevtoolsInfo<CR>
 
 let python_highlight_all = 1
 let g:tex_flavor = 'latex'
@@ -98,27 +103,13 @@ set statusline+=%*
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 0
 let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 0
+let g:syntastic_check_on_wq = 1
 
 " ghc-mod ====================================================================
-map <silent> tw :GhcModTypeInsert<CR>
-map <silent> ts :GhcModSplitFunCase<CR>
-map <silent> tq :GhcModType<CR>
-map <silent> te :GhcModTypeClear<CR>
-
-" supertab ==================================================================
-let g:SuperTabDefaultCompletionType = '<c-x><c-o>'
-
-if has("gui_running")
-  imap <c-space> <c-r>=SuperTabAlternateCompletion("\<lt>c-x>\<lt>c-o>")<cr>
-else " no gui
-  if has("unix")
-    inoremap <Nul> <c-r>=SuperTabAlternateCompletion("\<lt>c-x>\<lt>c-o>")<cr>
-  endif
-endif
-
-let g:haskellmode_completion_ghc = 1
-autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+"map <silent> tw :GhcModTypeInsert<CR>
+"map <silent> ts :GhcModSplitFunCase<CR>
+"map <silent> tq :GhcModType<CR>
+"map <silent> te :GhcModTypeClear<CR>
 
 " tabularize =================================================================
 let g:haskell_tabular = 1
@@ -143,3 +134,14 @@ nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
 " Use left / right arrows to switch buffers
 nnoremap <silent> <right> :bnext<cr>
 nnoremap <silent> <left> :bprev<cr>
+
+if &term =~ "xterm\\|rxvt"
+  " use an green cursor in insert mode
+  let &t_SI = "\<Esc>]12;green\x7"
+  " use a gray cursor otherwise
+  let &t_EI = "\<Esc>]12;gray\x7"
+  silent !echo -ne "\033]12;gray\007"
+  " reset cursor when vim exits
+  autocmd VimLeave * silent !echo -ne "\033]112\007"
+  " use \003]12;gray\007 for gnome-terminal and rxvt up to version 9.21
+endif
