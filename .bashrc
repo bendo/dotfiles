@@ -82,7 +82,13 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -ltr'
 alias f='sudo find / | grep '
+alias muc='curl wttr.in/Munich'
+alias ghc='stack ghc'
+alias ghci='stack ghci'
+alias runhaskell='stack runhaskell'
+alias up='. up.sh'
 
 export NPM_GLOBAL="${HOME}/.npm-global"
 export NODE_PATH="$NPM_GLOBAL/lib/node_modules:$NODE_PATH"
 export PATH=$PATH:$NPM_GLOBAL/bin:$HOME/.gem/ruby/2.4.0/bin:$HOME/bin:$HOME/.local/bin:$HOME/.cabal/bin
+source /usr/share/nvm/init-nvm.sh
