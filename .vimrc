@@ -17,6 +17,9 @@ Plug 'lervag/vimtex'
 Plug 'Shougo/vimproc.vim', {'do' : 'make'}
 " Elm
 Plug 'elmcast/elm-vim'
+" Presentation
+Plug 'sotte/presenting.vim'
+Plug 'junegunn/goyo.vim'
 call plug#end()
 
 execute pathogen#infect()
@@ -47,6 +50,7 @@ set relativenumber
 " Search =====================================================================
 set smartcase
 set gdefault
+set path+=**
 
 " Wild =======================================================================
 " Binary
