@@ -87,6 +87,7 @@ alias ghc='stack ghc'
 alias ghci='stack ghci'
 alias runhaskell='stack runhaskell'
 alias up='. up.sh'
+alias br='git branch | grep \*'
 
 export NPM_GLOBAL="${HOME}/.npm-global"
 export NODE_PATH="$NPM_GLOBAL/lib/node_modules:$NODE_PATH"
