@@ -1,0 +1,7 @@
+#!/bin/bash
+green=#859900
+color=$green
+icon=""
+
+status=$(awk '{ print $1, $2, $3 }' /proc/loadavg)
+echo "<fc=$color><fn=1>$icon</fn> $status</fc>"
