@@ -3,10 +3,11 @@ call plug#begin()
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
 " UI and apps
+Plug 'altercation/vim-colors-solarized'
+"Plug 'morhetz/gruvbox'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
-Plug 'altercation/vim-colors-solarized'
 Plug 'bling/vim-airline'
 " Git
 Plug 'airblade/vim-gitgutter' " shows changes on left side
@@ -20,6 +21,9 @@ Plug 'elmcast/elm-vim'
 " Presentation
 Plug 'sotte/presenting.vim'
 Plug 'junegunn/goyo.vim'
+" CSS
+Plug 'genoma/vim-less'
+Plug 'wavded/vim-stylus'
 call plug#end()
 
 execute pathogen#infect()
@@ -40,7 +44,7 @@ set hidden
 
 set nowrap
 set showmode
-set mouse=a 
+set mouse=a
 
 " Lines ======================================================================
 set linebreak
@@ -109,12 +113,6 @@ let g:syntastic_auto_loc_list = 0
 let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 1
 
-" ghc-mod ====================================================================
-"map <silent> tw :GhcModTypeInsert<CR>
-"map <silent> ts :GhcModSplitFunCase<CR>
-"map <silent> tq :GhcModType<CR>
-"map <silent> te :GhcModTypeClear<CR>
-
 " tabularize =================================================================
 let g:haskell_tabular = 1
 
@@ -127,10 +125,25 @@ set updatetime=250
 let g:gitgutter_max_signs = 500
 
 " GUI ========================================================================
-set background=dark
+set bg=dark
 colorscheme solarized
+"colorscheme gruvbox
 
+" Airline ====================================================================
 let g:airline_powerline_fonts = 1
+"let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#buffer_idx_mode = 1
+
+" Netrw ======================================================================
+let g:netrw_liststyle=3 " tree (change to 0 for thin)
+let g:netrw_banner=0    " no banner
+let g:netrw_altv=1      " open files on right
+let g:netrw_winsize=80  " only use 20% screen for netrw
+let g:netrw_browse_split = 0
+map <C-W> :Explore<CR>
+
+" Config =====================================================================
+set autochdir   " switch to current file's parent directory
 
 nnoremap <c-\> :CtrlP<CR>
 nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
@@ -139,13 +152,7 @@ nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
 nnoremap <silent> <right> :bnext<cr>
 nnoremap <silent> <left> :bprev<cr>
 
-if &term =~ "xterm\\|rxvt"
-  " use an green cursor in insert mode
-  let &t_SI = "\<Esc>]12;green\x7"
-  " use a gray cursor otherwise
-  let &t_EI = "\<Esc>]12;gray\x7"
-  silent !echo -ne "\033]12;gray\007"
-  " reset cursor when vim exits
-  autocmd VimLeave * silent !echo -ne "\033]112\007"
-  " use \003]12;gray\007 for gnome-terminal and rxvt up to version 9.21
-endif
+" Cursor =====================================================================
+let &t_SI = "\<Esc>[6 q"
+let &t_SR = "\<Esc>[4 q"
+let &t_EI = "\<Esc>[2 q"
