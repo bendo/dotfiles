@@ -24,7 +24,7 @@ main = do
 myLogHook h = dynamicLogWithPP xmobarPP
     { ppHidden  = xmobarColor "#6c71c4" ""
     , ppCurrent = xmobarColor "#b58900" "" . wrap "[" "]"
-    , ppTitle   = xmobarColor "#268bd2" "" . shorten 50
+    , ppTitle   = xmobarColor "#268bd2" "" . shorten 70
     , ppVisible = xmobarColor "#839496" "" . wrap "(" ")"
     , ppUrgent  = xmobarColor "#dc322f" "" . wrap " " " "
     , ppLayout  = xmobarColor "#2aa198" ""
@@ -106,7 +106,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask, xK_m), windows W.focusMaster)
     , ((modMask, xK_c), windows copyToAll)
     , ((modMask .|. shiftMask, xK_c), killAllOtherCopies)
-    --, ((modMask, xK_Return), windows W.swapMaster)
+    , ((modMask .|. shiftMask, xK_m), windows W.swapMaster)
     , ((modMask .|. shiftMask, xK_j), windows W.swapDown)
     , ((modMask .|. shiftMask, xK_k), windows W.swapUp)
     , ((modMask, xK_h), sendMessage Shrink)
