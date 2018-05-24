@@ -47,6 +47,12 @@ function settitle() {
   echo -ne "\e]2;$t\a\e]1;$t\a";
 }
 
+function jcurl() {
+    curl "$@" | json_pp | pygmentize -l json
+}
+
+export jcurl
+
 export EDITOR=vim
 #export PROMPT_COMMAND='settitle; git_branch; history -a;'
 export PROMPT_COMMAND='settitle; lambda_color; history -a;'
