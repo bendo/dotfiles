@@ -37,6 +37,7 @@ myStartupHook = do
 defaults din = def
     { terminal           = "urxvtc"
     , focusFollowsMouse  = False
+    , clickJustFocuses   = False
     , borderWidth        = 1
     , normalBorderColor  = gray
     , focusedBorderColor = blue
@@ -53,7 +54,8 @@ defaults din = def
 myWorkspaces = ["1","2","3","4:web"] ++ map show [5..9] ++ ["λ","π","ω"]
 
 myManageHook = composeAll
-    [ className =? "Chromium"          --> doShift "4"
+    [ className =? "chromium"          --> doShift "4"
+    , className =? "Firefox"           --> doShift "5"
     , resource  =? "desktop_window"    --> doIgnore
     , className =? "Galculator"        --> doFloat
     , className =? "Gimp"              --> doFloat
