@@ -58,9 +58,10 @@ Config
                 ] 10
             , Run Com "status-vol" [] "vol" 5
             , Run Com "status-keyboard" [] "kb" 10
+            , Run Com "wanikani" [] "wanikani" 600
             , Run StdinReader
             ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %StdinReader% }{ %vol%   %battery%   %wlp4s0wi%   %date%   %EDDM%   %kb% "
+       , template = " %StdinReader% }{%wanikani%   %vol%   %battery%   %wlp4s0wi%   %date%   %EDDM%   %kb% "
        }

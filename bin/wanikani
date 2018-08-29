@@ -1,0 +1,15 @@
+#!/bin/sh
+TIME=$(curl https://www.wanikani.com/api/user/1d8b47ee2259766c545632c2e50115a6/study-queue | jq -r '.requested_information.next_review_date')
+CURRENT=$(date +%s)
+
+icon=""
+green=#a5b400
+red=#ff0000
+
+DIFF=$((($TIME - $CURRENT) / 60))
+
+if [ $DIFF -gt 60 ]; then
+    echo "<fc=$green><fn=1>$icon</fn> ~$(($DIFF / 60)) hod</fc>"
+else
+    echo "<fc=$red><fn=1>$icon</fn> $DIFF min</fc>"
+fi
