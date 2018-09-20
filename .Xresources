@@ -75,9 +75,9 @@ URxvt*color15:                 S_base3
 ! URxvt*scrollBar_floating:             boolean
 ! URxvt*scrollBar_align:                mode
 ! URxvt*thickness:                      number
-! URxvt*scrollTtyOutput:                boolean
-! URxvt*scrollTtyKeypress:              boolean
-! URxvt*scrollWithBuffer:               boolean
+URxvt*scrollTtyOutput:                false
+URxvt*scrollTtyKeypress:              true
+URxvt*scrollWithBuffer:               true
 ! URxvt*inheritPixmap:                  boolean
 ! URxvt*transparent:                    boolean
 ! URxvt*tintColor:                      color
@@ -139,7 +139,7 @@ URxvt*color15:                 S_base3
 ! URxvt*imFont:                         fontname
 ! URxvt*title:                          string
 ! URxvt*iconName:                       string
- URxvt*saveLines:                      9999
+ URxvt*saveLines:                      100000
 ! URxvt*buffered:                       boolean
 ! URxvt*depth:                          number
 ! URxvt*visual:                         number
