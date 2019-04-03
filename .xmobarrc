@@ -20,7 +20,7 @@ Config
        , overrideRedirect = True
        , commands = 
             [ Run Weather "EDDM"
-                [ "-t", "<fc=#93a1a1><fn=1>\xf2cb</fn> MUC:<tempC>°</fc>"
+                [ "-t", "<fc=#93a1a1><fn=1>\xf0c2</fn> MUC: <tempC>°</fc>"
                 , "-L", "18"
                 , "-H", "25"
                 , "--low", "#93a1a1"
@@ -58,10 +58,10 @@ Config
                 ] 10
             , Run Com "status-vol" [] "vol" 5
             , Run Com "status-keyboard" [] "kb" 10
-            , Run Com "wanikani" [] "wanikani" 600
+            , Run Com "msg" [] "msg" 10
             , Run StdinReader
             ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %StdinReader% }{%wanikani%   %vol%   %battery%   %wlp4s0wi%   %date%   %EDDM%   %kb% "
+       , template = " %StdinReader% }{%msg%   %vol%   %battery%   %wlp4s0wi%   %date%   %EDDM%   %kb% "
        }
