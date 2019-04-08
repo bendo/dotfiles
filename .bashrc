@@ -5,19 +5,8 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-# get current git branch name
-function git_branch {
-    export gitbranch=[$(git rev-parse --abbrev-ref HEAD 2>/dev/null)]
-    if [ "$?" -ne 0 ]
-      then gitbranch=
-    fi
-    if [[ "${gitbranch}" == "[]" ]]
-      then gitbranch=
-    fi
-}
-
 function lambda_color {
-    branch=$(git status -uno 2>/dev/null)
+    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
     if [[ $branch == *master* ]]
     then
         lambdacolor='[1;31m';
@@ -54,9 +43,7 @@ function jcurl() {
 export jcurl
 
 export EDITOR=vim
-#export PROMPT_COMMAND='settitle; git_branch; history -a;'
 export PROMPT_COMMAND='settitle; lambda_color; history -a;'
-#export PS1='\[\e${usercolor}\][\u]\[\e${gitcolor}\]${gitbranch}\[\e${cwdcolor}\][$PWD]\[\e${inputcolor}\] ➤ '
 export PS1='\[\e${lambdacolor}\]λ\[\e${inputcolor}\] '
 export PS2=' | '
 
@@ -75,9 +62,6 @@ esac
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
@@ -94,6 +78,7 @@ alias ghci='stack ghci'
 alias runhaskell='stack runhaskell'
 alias up='. up.sh'
 alias br='git branch | grep \*'
+alias elm-format='elm-format --elm-version=0.19'
 
 export NPM_GLOBAL="${HOME}/.npm-global"
 export NODE_PATH="$NPM_GLOBAL/lib/node_modules:$NODE_PATH"
