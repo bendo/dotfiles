@@ -8,7 +8,7 @@ Plug 'altercation/vim-colors-solarized'
 Plug 'octol/vim-cpp-enhanced-highlight'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
-Plug 'bling/vim-airline'
+Plug 'vim-airline/vim-airline'
 " Git
 Plug 'airblade/vim-gitgutter' " shows changes on left side
 Plug 'kshenoy/vim-signature'  " shows registers on left side
@@ -17,13 +17,19 @@ Plug 'tpope/vim-markdown'
 Plug 'lervag/vimtex'
 Plug 'Shougo/vimproc.vim', {'do' : 'make'}
 " Elm
-Plug 'elmcast/elm-vim'
+ Plug 'carmonw/elm-vim'
 " Presentation
 Plug 'sotte/presenting.vim'
 Plug 'junegunn/goyo.vim'
 " CSS
 Plug 'genoma/vim-less'
 Plug 'wavded/vim-stylus'
+" C lint like linux
+Plug 'bendo/vim-linux-coding-style'
+" Haskell
+Plug 'w0rp/ale'
+Plug 'bitc/vim-hdevtools'
+Plug 'edkolev/curry.vim'
 call plug#end()
 
 execute pathogen#infect()
@@ -34,7 +40,7 @@ filetype plugin indent on
 
 set expandtab
 set shiftwidth=4
-set textwidth=79
+" set textwidth=79
 set tabstop=8
 set softtabstop=4
 
@@ -77,12 +83,11 @@ set wildignore+=*.dvi,*.log,*.out,*.bbl,*.blg,*.fdb_latexmk,*.fls,*.synctex.gz
 
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|dist'
 
-"Elm format on save
-let g:elm_format_autosave = 1
+let g:elm_format_fail_silently = 1
 
 " Press F4 to toggle highlighting on/off, and show current value.
 nnoremap <F4> :set hlsearch! hlsearch?<CR>
-
+nnoremap <F3> :let &cc = &cc == '' ? '80' : ''<CR>
 nnoremap <F2> :<C-U>setlocal lcs=tab:➜.,trail:-,eol:↵ list! list?<CR>
 
 " count occurence of world under the cursor ,*
@@ -95,23 +100,19 @@ autocmd FileType make setlocal noexpandtab nosmarttab
 au FileType tex setlocal shiftwidth=2 spell
 au BufRead,BufNewFile *.ino,*.pde set filetype=c
 
+" Haskell ====================================================================
+let g:airline#extensions#tabline#enabled = 1
+let g:ale_linters ={
+      \   'haskell': ['hlint']
+      \}
+
+let g:hdevtools_stack = 1
 au FileType haskell nnoremap <buffer> <silent> <F5> :HdevtoolsInfo<CR>
 
 let python_highlight_all = 1
 let g:tex_flavor = 'latex'
 let g:vimtex_quickfix_open_on_warning=0
 let g:cpp_class_scope_highlight = 1
-
-" Syntastic ==================================================================
-map <Leader>s :SyntasticToggleMode<CR>
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 0
-let g:syntastic_check_on_open = 0
-let g:syntastic_check_on_wq = 1
 
 " tabularize =================================================================
 let g:haskell_tabular = 1
@@ -131,7 +132,7 @@ colorscheme solarized
 
 " Airline ====================================================================
 let g:airline_powerline_fonts = 1
-"let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#ale#enabled = 1
 "let g:airline#extensions#tabline#buffer_idx_mode = 1
 
 " Netrw ======================================================================
@@ -156,3 +157,12 @@ nnoremap <silent> <left> :bprev<cr>
 let &t_SI = "\<Esc>[6 q"
 let &t_SR = "\<Esc>[4 q"
 let &t_EI = "\<Esc>[2 q"
+
+" Whitespace deletion ========================================================
+au BufWritePre *.hs :%s/\s\+$//e
+au BufWritePre *.js :%s/\s\+$//e
+au BufWritePre *.py :%s/\s\+$//e
+au BufWritePre *.jsx :%s/\s\+$//e
+au BufWritePre *.css :%s/\s\+$//e
+au BufWritePre *.less :%s/\s\+$//e
+au BufWritePre *.java :%s/\s\+$//e
