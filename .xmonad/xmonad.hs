@@ -17,10 +17,12 @@ import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
 import qualified Data.Map as M
 
+main :: IO ()
 main = do
     din <- spawnPipe "xmobar"
     xmonad $ docks $ defaults din
 
+myLogHook :: Handle -> X ()
 myLogHook h = dynamicLogWithPP xmobarPP
     { ppHidden  = xmobarColor "#6c71c4" ""
     , ppCurrent = xmobarColor "#b58900" "" . wrap "[" "]"
@@ -31,8 +33,8 @@ myLogHook h = dynamicLogWithPP xmobarPP
     , ppOutput  = hPutStrLn h
     }
 
-myStartupHook = do
-    spawn "xmobar ~/.xmobarrc"
+myStartupHook :: X ()
+myStartupHook = spawn "xmobar ~/.xmobarrc"
 
 defaults din = def
     { terminal           = "urxvtc"
@@ -51,19 +53,22 @@ defaults din = def
     , startupHook        = myStartupHook
     }
 
-myWorkspaces = ["1","2","3","4:web"] ++ map show [5..9] ++ ["λ","π","ω"]
+myWorkspaces :: [WorkspaceId]
+myWorkspaces = map show [1..9] ++ ["λ","π","ω"]
 
+myManageHook :: ManageHook
 myManageHook = composeAll
     [ className =? "chromium"          --> doShift "4"
     , className =? "Firefox"           --> doShift "5"
     , resource  =? "desktop_window"    --> doIgnore
     , className =? "Galculator"        --> doFloat
     , className =? "Gimp"              --> doFloat
+    , className =? "Gitk"              --> doFloat
     , className =? "XCalc"             --> doFloat
     , className =? "MPlayer"           --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
-myLayouts = onWorkspaces ["4:web","8","9"] webLayout $ smartBorders $ standardLayout
+myLayouts = onWorkspaces ["4:web","8","9"] webLayout $ smartBorders standardLayout
     where
         standardLayout = avoidStruts ( tall ||| Full ||| Mirror tall ||| Grid )
             where
@@ -84,6 +89,7 @@ green = "#5bce2d"
 white = "#eeeeee"
 blue  = "#268bd2"
 
+tabConfig :: Theme
 tabConfig = def
     { activeBorderColor   = gray
     , activeTextColor     = blue
@@ -93,7 +99,8 @@ tabConfig = def
     , inactiveColor       = black
     }
 
-myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
+myKeys :: XConfig Layout -> M.Map (KeyMask, KeySym) (X ())
+myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     [ ((modMask, xK_Return), spawn $ XMonad.terminal conf)
     , ((modMask, xK_x), spawn "xkill")
     , ((modMask .|. shiftMask, xK_l), spawn "lock")
@@ -116,7 +123,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask, xK_t), withFocused $ windows . W.sink)
     , ((modMask, xK_comma), sendMessage (IncMasterN 1))
     , ((modMask, xK_period), sendMessage (IncMasterN (-1)))
-    , ((modMask .|. shiftMask, xK_q), io (exitWith ExitSuccess))
+    , ((modMask .|. shiftMask, xK_q), io exitSuccess)
     , ((modMask, xK_r), restart "xmonad" True)
     , ((0, xK_Print), spawn "scrot '%Y-%m-%d-%T_$wx$h.png' -e 'mv $f ~'")
     ]
@@ -131,9 +138,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
     ]
 
-myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
-    [ ((modMask, button1), (\w -> focus w >> mouseMoveWindow w))
-    , ((modMask, button2), (\w -> focus w >> windows W.swapMaster))
-    , ((modMask, button3), (\w -> focus w >> mouseResizeWindow w))
+myMouseBindings :: XConfig l -> M.Map (KeyMask, Button) (Window -> X ())
+myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
+    [ ((modMask, button1), \w -> focus w >> mouseMoveWindow w)
+    , ((modMask, button2), \w -> focus w >> windows W.swapMaster)
+    , ((modMask, button3), \w -> focus w >> mouseResizeWindow w)
     ]
 
