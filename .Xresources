@@ -8,7 +8,7 @@
 ! URxvt*skipScroll:                     boolean
 ! URxvt*pastableTabs:                   boolean
 
-URxvt.font:                     xft:DejaVu Sans Mono for Powerline:size=9
+URxvt.font:                     xft:DejaVu Sans Mono for Powerline:size=10
 URxvt*scrollstyle:		plain
 URxvt*scrollBar:		true
 URxvt*scrollBar_right:		true 
