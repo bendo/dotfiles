@@ -63,7 +63,7 @@ myManageHook = composeAll
     , resource  =? "desktop_window"    --> doIgnore
     , className =? "Galculator"        --> doFloat
     , className =? "Gimp"              --> doFloat
-    , className =? "Gitk"              --> doFloat
+    , className =? "Gitk"              --> doCenterFloat
     , className =? "XCalc"             --> doFloat
     , className =? "MPlayer"           --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
@@ -104,7 +104,7 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     [ ((modMask, xK_Return), spawn $ XMonad.terminal conf)
     , ((modMask, xK_x), spawn "xkill")
     , ((modMask .|. shiftMask, xK_l), spawn "lock")
-    , ((modMask, xK_d), spawn "dmenu_run -fn '-9'")
+    , ((modMask, xK_d), spawn "dmenu_run -fn '-12'")
     , ((modMask, xK_q), kill)
     , ((modMask, xK_space), sendMessage NextLayout)
     , ((modMask .|. shiftMask, xK_space), setLayout $ XMonad.layoutHook conf)
