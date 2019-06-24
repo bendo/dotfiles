@@ -1,21 +1,25 @@
-import System.IO
-import System.Exit
-import XMonad
-import XMonad.Actions.CopyWindow
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.SetWMName
-import XMonad.Layout.Fullscreen
-import XMonad.Layout.Grid
-import XMonad.Layout.NoBorders
-import XMonad.Layout.PerWorkspace
-import XMonad.Layout.Spiral
-import XMonad.Layout.Tabbed
-import XMonad.Util.Run(spawnPipe)
-import XMonad.Util.EZConfig(additionalKeys)
-import qualified XMonad.StackSet as W
-import qualified Data.Map as M
+import qualified Data.Map                            as M
+import           Data.Monoid
+import           System.Exit
+import           System.IO
+import           XMonad
+import           XMonad.Actions.CopyWindow
+import           XMonad.Hooks.DynamicLog
+import           XMonad.Hooks.ManageDocks
+import           XMonad.Hooks.ManageHelpers
+import           XMonad.Hooks.SetWMName
+import           XMonad.Layout.Fullscreen
+import           XMonad.Layout.Grid
+import           XMonad.Layout.MultiToggle
+import           XMonad.Layout.MultiToggle.Instances
+import           XMonad.Layout.NoBorders
+import           XMonad.Layout.PerWorkspace
+import           XMonad.Layout.Spiral
+import           XMonad.Layout.Tabbed
+import qualified XMonad.StackSet                     as W
+import           XMonad.Util.EZConfig                (additionalKeys)
+import           XMonad.Util.NamedScratchpad
+import           XMonad.Util.Run                     (spawnPipe)
 
 main :: IO ()
 main = do
@@ -57,7 +61,7 @@ myWorkspaces :: [WorkspaceId]
 myWorkspaces = map show [1..9] ++ ["λ","π","ω"]
 
 myManageHook :: ManageHook
-myManageHook = composeAll
+myManageHook = namedScratchpadManageHook myScratchPads <+> composeAll
     [ className =? "chromium"          --> doShift "4"
     , className =? "Firefox"           --> doShift "5"
     , resource  =? "desktop_window"    --> doIgnore
@@ -68,19 +72,13 @@ myManageHook = composeAll
     , className =? "MPlayer"           --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
-myLayouts = onWorkspaces ["4:web","8","9"] webLayout $ smartBorders standardLayout
+myLayouts = smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
     where
-        standardLayout = avoidStruts ( tall ||| Full ||| Mirror tall ||| Grid )
+        standardLayout = avoidStruts ( tall ||| Full ||| Grid ||| Mirror tall )
             where
                 tall = Tall nmaster delta ratio
                 nmaster = 1
                 ratio = 1/2
-                delta = 2/100
-        webLayout = avoidStruts ( Full ||| Mirror tall )
-            where
-                tall = Tall nmaster delta ratio
-                nmaster = 1
-                ratio = 3/4
                 delta = 2/100
 
 black = "#020202"
@@ -118,9 +116,13 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     , ((modMask .|. shiftMask, xK_m), windows W.swapMaster)
     , ((modMask .|. shiftMask, xK_j), windows W.swapDown)
     , ((modMask .|. shiftMask, xK_k), windows W.swapUp)
+    , ((modMask, xK_b), sendMessage $ Toggle FULL)
     , ((modMask, xK_h), sendMessage Shrink)
     , ((modMask, xK_l), sendMessage Expand)
     , ((modMask, xK_t), withFocused $ windows . W.sink)
+    , ((modMask .|. shiftMask, xK_t), rectFloatFocused)
+    , ((modMask, xK_g), namedScratchpadAction myScratchPads "todo")
+    , ((modMask .|. shiftMask, xK_f), fullFloatFocused)
     , ((modMask, xK_comma), sendMessage (IncMasterN 1))
     , ((modMask, xK_period), sendMessage (IncMasterN (-1)))
     , ((modMask .|. shiftMask, xK_q), io exitSuccess)
@@ -136,7 +138,11 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     [ ((m .|. modMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
         | (key, sc) <- zip [xK_u, xK_o, xK_p] [0..]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
-    ]
+    ] where
+        fullFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery doFullFloat f
+        rectFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery doMyRectFloat f
+            where
+              doMyRectFloat = doRectFloat $ W.RationalRect 0.05 0.05 0.9 0.9
 
 myMouseBindings :: XConfig l -> M.Map (KeyMask, Button) (Window -> X ())
 myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
@@ -145,3 +151,8 @@ myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
     , ((modMask, button3), \w -> focus w >> mouseResizeWindow w)
     ]
 
+myScratchPads = [NS "todo" spawnTerm findTerm manageTerm]
+                    where
+                        spawnTerm = "urxvtc -name todo-scr -e vim ~/todo.md"
+                        findTerm = resource =? "todo-scr"
+                        manageTerm = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
