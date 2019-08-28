@@ -66,6 +66,7 @@ myManageHook = namedScratchpadManageHook myScratchPads <+> composeAll
     , className =? "Firefox"           --> doShift "5"
     , resource  =? "desktop_window"    --> doIgnore
     , className =? "Galculator"        --> doFloat
+    , className =? "zoom"              --> doFloat
     , className =? "Gimp"              --> doFloat
     , className =? "Gitk"              --> doCenterFloat
     , className =? "XCalc"             --> doFloat
@@ -121,7 +122,10 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     , ((modMask, xK_l), sendMessage Expand)
     , ((modMask, xK_t), withFocused $ windows . W.sink)
     , ((modMask .|. shiftMask, xK_t), rectFloatFocused)
-    , ((modMask, xK_g), namedScratchpadAction myScratchPads "todo")
+    , ((modMask, xK_e), namedScratchpadAction myScratchPads "term")
+    , ((modMask, xK_f), namedScratchpadAction myScratchPads "todo")
+    , ((modMask, xK_s), namedScratchpadAction myScratchPads "scratch")
+    , ((modMask, xK_g), namedScratchpadAction myScratchPads "ghci")
     , ((modMask .|. shiftMask, xK_f), fullFloatFocused)
     , ((modMask, xK_comma), sendMessage (IncMasterN 1))
     , ((modMask, xK_period), sendMessage (IncMasterN (-1)))
@@ -151,8 +155,24 @@ myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
     , ((modMask, button3), \w -> focus w >> mouseResizeWindow w)
     ]
 
-myScratchPads = [NS "todo" spawnTerm findTerm manageTerm]
+myScratchPads = [ NS "term" spawnTerm findTerm manageTerm
+                , NS "todo" spawnTodo findTodo manageTodo
+                , NS "scratch" spawnScratch findScratch manageScratch
+                , NS "ghci" spawnGhci findGhci manageGhci
+                ]
                     where
-                        spawnTerm = "urxvtc -name todo-scr -e vim ~/todo.md"
-                        findTerm = resource =? "todo-scr"
+                        spawnTerm = "urxvtc -name term-scr"
+                        findTerm = resource =? "term-scr"
                         manageTerm = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
+
+                        spawnTodo = "urxvtc -name todo-scr -e vim ~/.todo.md"
+                        findTodo = resource =? "todo-scr"
+                        manageTodo = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
+
+                        spawnScratch = "urxvtc -name scratch-scr -e vim ~/.scratch.sh"
+                        findScratch = resource =? "scratch-scr"
+                        manageScratch = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
+
+                        spawnGhci = "urxvtc -name ghci-scr -e stack ghci"
+                        findGhci = resource =? "ghci-scr"
+                        manageGhci = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
