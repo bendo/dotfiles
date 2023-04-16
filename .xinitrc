@@ -3,13 +3,19 @@
 xrdb -merge .Xresources &
 urxvtd -q -o -f
 
-xloadimage -onroot -fullscreen ~/.i3/h1.png
+xloadimage -onroot -fullscreen ~/.m/bg.png
 
 # unclutter -idle 3 -jitter 5 -noevents -root &
 xbanish &
 
-xset s off -dpms&
+xbindkeys &
+
+xset s off -dpms &
 xsetroot -cursor_name left_ptr &
 
-#exec i3
+xinput set-prop 14 319 1
+
+eval $(gnome-keyring-daemon --start)
+export SSH_AUTH_SOCK
+
 exec xmonad

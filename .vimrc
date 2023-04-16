@@ -1,8 +1,15 @@
 call plug#begin()
+Plug 'ctrlpvim/ctrlp.vim'
+"Nerdtree
+Plug 'preservim/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'ryanoasis/vim-devicons'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 " Editing
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
 " UI and apps
+Plug 'arcticicestudio/nord-vim'
 Plug 'altercation/vim-colors-solarized'
 "Plug 'morhetz/gruvbox'
 Plug 'octol/vim-cpp-enhanced-highlight'
@@ -16,24 +23,24 @@ Plug 'kshenoy/vim-signature'  " shows registers on left side
 Plug 'tpope/vim-markdown'
 Plug 'lervag/vimtex'
 Plug 'Shougo/vimproc.vim', {'do' : 'make'}
-" Elm
- Plug 'carmonw/elm-vim'
 " Presentation
 Plug 'sotte/presenting.vim'
 Plug 'junegunn/goyo.vim'
+" Rescript
+Plug 'rescript-lang/vim-rescript'
 " CSS
 Plug 'genoma/vim-less'
 Plug 'wavded/vim-stylus'
-" C lint like linux
-Plug 'bendo/vim-linux-coding-style'
 " Haskell
-Plug 'w0rp/ale'
-Plug 'bitc/vim-hdevtools'
 Plug 'edkolev/curry.vim'
+"Plug 'godlygeek/tabular'
+Plug 'alx741/vim-stylishask'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neovimhaskell/haskell-vim'
 call plug#end()
 
-execute pathogen#infect()
-
+set encoding=UTF-8
+set guifont=DroidSansMono\ Nerd\ Font\ 12
 " Tabs & indentation =========================================================
 syntax on
 filetype plugin indent on
@@ -55,12 +62,17 @@ set mouse=a
 " Lines ======================================================================
 set linebreak
 set breakindent
+set number
 set relativenumber
 
 " Search =====================================================================
 set smartcase
-set gdefault
 set path+=**
+
+" Swap files =================================================================
+set directory=$HOME/.vim/swp//
+set undofile
+set undodir=~/.vim/undodir
 
 " Wild =======================================================================
 " Binary
@@ -83,8 +95,6 @@ set wildignore+=*.dvi,*.log,*.out,*.bbl,*.blg,*.fdb_latexmk,*.fls,*.synctex.gz
 
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|dist'
 
-let g:elm_format_fail_silently = 1
-
 " Press F4 to toggle highlighting on/off, and show current value.
 nnoremap <F4> :set hlsearch! hlsearch?<CR>
 nnoremap <F3> :let &cc = &cc == '' ? '80' : ''<CR>
@@ -95,19 +105,102 @@ map ,* *<C-O>:%s///gn<CR>
 
 " Filetypes ==================================================================
 autocmd FileType c,ino,arduino setlocal noexpandtab shiftwidth=8 tabstop=8
-autocmd FileType html,xhtml,xml,xsl,htmldjango setlocal shiftwidth=2
+" autocmd FileType html,xhtml,xml,xsl,htmldjango setlocal shiftwidth=2
 autocmd FileType make setlocal noexpandtab nosmarttab
 au FileType tex setlocal shiftwidth=2 spell
 au BufRead,BufNewFile *.ino,*.pde set filetype=c
 
 " Haskell ====================================================================
 let g:airline#extensions#tabline#enabled = 1
-let g:ale_linters ={
-      \   'haskell': ['hlint']
-      \}
+"autocmd FileType haskell autocmd BufWritePre <buffer> call CocAction('format')
+let g:haskell_indent_disable=1
+set formatprg=stylish-haskell
 
-let g:hdevtools_stack = 1
-au FileType haskell nnoremap <buffer> <silent> <F5> :HdevtoolsInfo<CR>
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+"nmap <silent> gi <Plug>(coc-implementation) -- not supported byt hls
+nmap <silent> gr <Plug>(coc-references)
+
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+function! s:show_documentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+nmap <leader>ac  <Plug>(coc-codeaction)
+" END Haskell ================================================================
+
+" Nerdtree ===================================================================
+nnoremap <leader>n :NERDTreeFocus<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <C-f> :NERDTreeFind<CR>
+
+let g:NERDTreeIgnore = ['^node_modules']
+
+" au VimEnter *  NERDTree " will open NERDTree automaticaly
+
+function! IsNERDTreeOpen()        
+  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
+endfunction
+
+" Call NERDTreeFind iff NERDTree is active, current window contains a modifiable
+" file, and we're not in vimdiff
+function! SyncTree()
+  if &modifiable && IsNERDTreeOpen()
+    NERDTreeFind
+    wincmd p
+  endif
+endfunction
+
+" Highlight currently open buffer in NERDTree
+autocmd BufEnter * call SyncTree()
+
+let g:WebDevIconsUnicodeDecorateFileNodesDefaultSymbol = ''
+
+let g:WebDevIconsUnicodeDecorateFileNodesExactSymbols = {} " needed
+let g:WebDevIconsUnicodeDecorateFileNodesExactSymbols['Dockerfile'] = ''
+
+let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols = {} " needed
+let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['Docker.*'] = ''
+
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols = {} " needed
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['hs'] = ''
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['js'] = ''
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['res'] = 'ﰄ'
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['yaml'] = ''
+let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['conf'] = '難'
+
+let s:brown = "905532"
+let s:aqua =  "3AFFDB"
+let s:blue = "689FB6"
+let s:darkBlue = "44788E"
+let s:purple = "834F79"
+let s:lightPurple = "834F79"
+let s:red = "AE403F"
+let s:orange = "D4843E"
+let s:darkOrange = "F16529"
+let s:pink = "CB6F6F"
+let s:salmon = "EE6E73"
+let s:green = "8FAA54"
+let s:lightGreen = "31B53E"
+let s:white = "FFFFFF"
+let s:rspec_red = 'FE405F'
+let s:git_orange = 'F54D27'
+
+let g:NERDTreeExtensionHighlightColor = {} " this line is needed to avoid error
+let g:NERDTreeExtensionHighlightColor['res'] = s:git_orange " sets the color of css files to blue
+let g:NERDTreeExtensionHighlightColor['conf'] = s:purple " sets the color of css files to blue
+" END Nerdtree ===============================================================
 
 let python_highlight_all = 1
 let g:tex_flavor = 'latex'
@@ -115,11 +208,11 @@ let g:vimtex_quickfix_open_on_warning=0
 let g:cpp_class_scope_highlight = 1
 
 " tabularize =================================================================
-let g:haskell_tabular = 1
+"let g:haskell_tabular = 1
 
-vmap a= :Tabularize /=<CR>
-vmap a; :Tabularize /::<CR>
-vmap a- :Tabularize /-><CR>
+"vmap a= :Tabularize /=<CR>
+"vmap a; :Tabularize /::<CR>
+"vmap a- :Tabularize /-><CR>
 
 " Git ========================================================================
 set updatetime=250
@@ -135,19 +228,11 @@ let g:airline_powerline_fonts = 1
 let g:airline#extensions#ale#enabled = 1
 "let g:airline#extensions#tabline#buffer_idx_mode = 1
 
-" Netrw ======================================================================
-let g:netrw_liststyle=3 " tree (change to 0 for thin)
-let g:netrw_banner=0    " no banner
-let g:netrw_altv=1      " open files on right
-let g:netrw_winsize=80  " only use 20% screen for netrw
-let g:netrw_browse_split = 0
-map <C-W> :Explore<CR>
-
 " Config =====================================================================
 set autochdir   " switch to current file's parent directory
 
-nnoremap <c-\> :CtrlP<CR>
-nnoremap <buffer> <F9> :exec '!python' shellescape(@%, 1)<cr>
+nnoremap n nzz
+nnoremap N Nzz
 
 " Use left / right arrows to switch buffers
 nnoremap <silent> <right> :bnext<cr>

@@ -1,26 +1,31 @@
-import System.IO
-import System.Exit
-import XMonad
-import XMonad.Actions.CopyWindow
-import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.SetWMName
-import XMonad.Layout.Fullscreen
-import XMonad.Layout.Grid
-import XMonad.Layout.NoBorders
-import XMonad.Layout.PerWorkspace
-import XMonad.Layout.Spiral
-import XMonad.Layout.Tabbed
-import XMonad.Util.Run(spawnPipe)
-import XMonad.Util.EZConfig(additionalKeys)
-import qualified XMonad.StackSet as W
-import qualified Data.Map as M
+import qualified Data.Map                            as M
+import           Data.Monoid
+import           System.Exit
+import           System.IO
+import           XMonad
+import           XMonad.Actions.CopyWindow
+import           XMonad.Hooks.DynamicLog
+import           XMonad.Hooks.EwmhDesktops           (ewmh, fullscreenEventHook)
+import           XMonad.Hooks.ManageDocks
+import           XMonad.Hooks.ManageHelpers
+import           XMonad.Hooks.SetWMName
+import           XMonad.Layout.Fullscreen
+import           XMonad.Layout.Grid
+import           XMonad.Layout.MultiToggle
+import           XMonad.Layout.MultiToggle.Instances
+import           XMonad.Layout.NoBorders
+import           XMonad.Layout.PerWorkspace
+import           XMonad.Layout.Spiral
+import           XMonad.Layout.Tabbed
+import qualified XMonad.StackSet                     as W
+import           XMonad.Util.EZConfig                (additionalKeys)
+import           XMonad.Util.NamedScratchpad
+import           XMonad.Util.Run                     (spawnPipe)
 
 main :: IO ()
 main = do
     din <- spawnPipe "xmobar"
-    xmonad $ docks $ defaults din
+    xmonad $ ewmh $ docks $ defaults din
 
 myLogHook :: Handle -> X ()
 myLogHook h = dynamicLogWithPP xmobarPP
@@ -57,30 +62,26 @@ myWorkspaces :: [WorkspaceId]
 myWorkspaces = map show [1..9] ++ ["λ","π","ω"]
 
 myManageHook :: ManageHook
-myManageHook = composeAll
+myManageHook = namedScratchpadManageHook myScratchPads <+> composeAll
     [ className =? "chromium"          --> doShift "4"
-    , className =? "Firefox"           --> doShift "5"
+    , className =? "Sabaki"            --> doFloat
+    , className =? "pentablet"         --> doFloat
     , resource  =? "desktop_window"    --> doIgnore
     , className =? "Galculator"        --> doFloat
+    , className =? "zoom"              --> doFloat
     , className =? "Gimp"              --> doFloat
-    , className =? "Gitk"              --> doFloat
+    , className =? "Gitk"              --> doCenterFloat
     , className =? "XCalc"             --> doFloat
     , className =? "MPlayer"           --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
-myLayouts = onWorkspaces ["4:web","8","9"] webLayout $ smartBorders standardLayout
+myLayouts = smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
     where
-        standardLayout = avoidStruts ( tall ||| Full ||| Mirror tall ||| Grid )
+        standardLayout = avoidStruts ( tall ||| Full ||| Grid ||| Mirror tall )
             where
                 tall = Tall nmaster delta ratio
                 nmaster = 1
                 ratio = 1/2
-                delta = 2/100
-        webLayout = avoidStruts ( Full ||| Mirror tall )
-            where
-                tall = Tall nmaster delta ratio
-                nmaster = 1
-                ratio = 3/4
                 delta = 2/100
 
 black = "#020202"
@@ -104,7 +105,7 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     [ ((modMask, xK_Return), spawn $ XMonad.terminal conf)
     , ((modMask, xK_x), spawn "xkill")
     , ((modMask .|. shiftMask, xK_l), spawn "lock")
-    , ((modMask, xK_d), spawn "dmenu_run -fn '-9'")
+    , ((modMask, xK_d), spawn "dmenu_run -fn '-12'")
     , ((modMask, xK_q), kill)
     , ((modMask, xK_space), sendMessage NextLayout)
     , ((modMask .|. shiftMask, xK_space), setLayout $ XMonad.layoutHook conf)
@@ -118,9 +119,15 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     , ((modMask .|. shiftMask, xK_m), windows W.swapMaster)
     , ((modMask .|. shiftMask, xK_j), windows W.swapDown)
     , ((modMask .|. shiftMask, xK_k), windows W.swapUp)
+    , ((modMask, xK_z), sendMessage $ Toggle FULL)
     , ((modMask, xK_h), sendMessage Shrink)
     , ((modMask, xK_l), sendMessage Expand)
     , ((modMask, xK_t), withFocused $ windows . W.sink)
+    , ((modMask .|. shiftMask, xK_t), rectFloatFocused)
+    , ((modMask, xK_o), namedScratchpadAction myScratchPads "term")
+    , ((modMask, xK_f), namedScratchpadAction myScratchPads "firefox")
+    , ((modMask, xK_a), namedScratchpadAction myScratchPads "ghci")
+    , ((modMask .|. shiftMask, xK_f), fullFloatFocused)
     , ((modMask, xK_comma), sendMessage (IncMasterN 1))
     , ((modMask, xK_period), sendMessage (IncMasterN (-1)))
     , ((modMask .|. shiftMask, xK_q), io exitSuccess)
@@ -134,9 +141,13 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     ]
     ++
     [ ((m .|. modMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_u, xK_o, xK_p] [0..]
+        | (key, sc) <- zip [xK_u, xK_w, xK_e] [0..]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
-    ]
+    ] where
+        fullFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery doFullFloat f
+        rectFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery doMyRectFloat f
+            where
+              doMyRectFloat = doRectFloat $ W.RationalRect 0.05 0.05 0.9 0.9
 
 myMouseBindings :: XConfig l -> M.Map (KeyMask, Button) (Window -> X ())
 myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
@@ -145,3 +156,23 @@ myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
     , ((modMask, button3), \w -> focus w >> mouseResizeWindow w)
     ]
 
+centeredRect   = W.RationalRect 0.2 0.2 0.6 0.6
+rightBarRect   = W.RationalRect (1/2) 0.019 (1/2) 0.98
+leftBarRect    = W.RationalRect 0.001 0.019 (1/2) 0.98
+
+myScratchPads = [ NS "term" spawnTerm findTerm manageTerm
+                , NS "firefox" spawnFirefox findFirefox manageFirefox
+                , NS "ghci" spawnGhci findGhci manageGhci
+                ]
+                    where
+                        spawnTerm = "urxvtc -name term-scr"
+                        findTerm = resource =? "term-scr"
+                        manageTerm = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
+
+                        spawnFirefox = "firefox"
+                        findFirefox = className =? "firefox"
+                        manageFirefox = doRectFloat $ rightBarRect
+
+                        spawnGhci = "urxvtc -name ghci-scr -e stack ghci"
+                        findGhci = resource =? "ghci-scr"
+                        manageGhci = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6

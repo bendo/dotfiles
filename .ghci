@@ -1,5 +1,6 @@
 :set prompt "\ESC[34mλ \ESC[m"
 :set prompt2 "\ESC[35mλ \ESC[m"
+:set -XTypeApplications
 
 let escape arg = "'" ++ concatMap (\c -> if c == '\'' then "'\"'\"'" else [c]) arg ++ "'"
 :def! search return . (":! hoogle --color " ++) . escape

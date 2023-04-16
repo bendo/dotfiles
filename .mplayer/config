@@ -4,3 +4,6 @@ subfont-text-scale="2"
 subfont-blur="4"
 subfont-outline="4"
 vf=hue=0.0:1.0,eq2=1.0:1.0:0.1:1.0:1.0:1.0:1.0:1.0
+lavdopts=fast=1:threads=4
+cache=8192
+cache-min=20

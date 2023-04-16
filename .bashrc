@@ -7,7 +7,7 @@
 
 function lambda_color {
     branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-    if [[ $branch == *master* ]]
+    if [[ $branch == *master* || $branch == *main* ]]
     then
         lambdacolor='[1;31m';
     elif [[ $branch == "" ]]
@@ -83,4 +83,5 @@ alias elm-format='elm-format --elm-version=0.19'
 export NPM_GLOBAL="${HOME}/.npm-global"
 export NODE_PATH="$NPM_GLOBAL/lib/node_modules:$NODE_PATH"
 export PATH=$PATH:$NPM_GLOBAL/bin:$HOME/.gem/ruby/2.4.0/bin:$HOME/bin:$HOME/.local/bin:$HOME/.cabal/bin
-source /usr/share/nvm/init-nvm.sh
+# source /usr/share/nvm/init-nvm.sh
+[ -f "/home/bendo/.ghcup/env" ] && source "/home/bendo/.ghcup/env" # ghcup-env
