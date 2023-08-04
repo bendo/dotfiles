@@ -3,21 +3,28 @@ import           Data.Monoid
 import           System.Exit
 import           System.IO
 import           XMonad
+
 import           XMonad.Actions.CopyWindow
+
 import           XMonad.Hooks.DynamicLog
 import           XMonad.Hooks.EwmhDesktops           (ewmh, fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.SetWMName
+
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
+import           XMonad.Layout.Magnifier
 import           XMonad.Layout.MultiToggle
 import           XMonad.Layout.MultiToggle.Instances
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.PerWorkspace
 import           XMonad.Layout.Spiral
 import           XMonad.Layout.Tabbed
+import           XMonad.Layout.ThreeColumns
+
 import qualified XMonad.StackSet                     as W
+
 import           XMonad.Util.EZConfig                (additionalKeys)
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run                     (spawnPipe)
@@ -29,14 +36,18 @@ main = do
 
 myLogHook :: Handle -> X ()
 myLogHook h = dynamicLogWithPP xmobarPP
-    { ppHidden  = xmobarColor "#6c71c4" ""
-    , ppCurrent = xmobarColor "#b58900" "" . wrap "[" "]"
+    { ppSep     = magenta "  •  "
+    , ppHidden  = xmobarColor "#6c71c4" ""
+    , ppCurrent = wrap "" "" . xmobarBorder "Top" "#8be9fd" 2
     , ppTitle   = xmobarColor "#268bd2" "" . shorten 70
     , ppVisible = xmobarColor "#839496" "" . wrap "(" ")"
     , ppUrgent  = xmobarColor "#dc322f" "" . wrap " " " "
     , ppLayout  = xmobarColor "#2aa198" ""
     , ppOutput  = hPutStrLn h
     }
+
+magenta :: String -> String
+magenta  = xmobarColor "#ff79c6" ""
 
 myStartupHook :: X ()
 myStartupHook = spawn "xmobar ~/.xmobarrc"
@@ -63,26 +74,30 @@ myWorkspaces = map show [1..9] ++ ["λ","π","ω"]
 
 myManageHook :: ManageHook
 myManageHook = namedScratchpadManageHook myScratchPads <+> composeAll
-    [ className =? "chromium"          --> doShift "4"
-    , className =? "Sabaki"            --> doFloat
-    , className =? "pentablet"         --> doFloat
-    , resource  =? "desktop_window"    --> doIgnore
-    , className =? "Galculator"        --> doFloat
-    , className =? "zoom"              --> doFloat
-    , className =? "Gimp"              --> doFloat
-    , className =? "Gitk"              --> doCenterFloat
-    , className =? "XCalc"             --> doFloat
-    , className =? "MPlayer"           --> doFloat
+    [ className =? "chromium"           --> doShift "4"
+    , className =? "Sabaki"             --> doFloat
+    , className =? "pentablet"          --> doFloat
+    , resource  =? "desktop_window"     --> doIgnore
+    , className =? "Galculator"         --> doFloat
+    , className =? "zoom"               --> doFloat
+    , className =? "Gimp"               --> doFloat
+    , className =? "Gitk"               --> doCenterFloat
+    , className =? "XCalc"              --> doFloat
+    , className =? "MPlayer"            --> doFloat
+    , className =? "minecraft-launcher" --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
 myLayouts = smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
     where
-        standardLayout = avoidStruts ( tall ||| Full ||| Grid ||| Mirror tall )
+        standardLayout = avoidStruts ( tall ||| Full ||| threeCol ||| Grid )
             where
+                threeCol = magnifiercz' 1.3 $ ThreeColMid nmaster delta3 ratio3
                 tall = Tall nmaster delta ratio
                 nmaster = 1
                 ratio = 1/2
+                ratio3 = 1/2.5
                 delta = 2/100
+                delta3 = 3/100
 
 black = "#020202"
 gray  = "#7c7c7c"
@@ -119,7 +134,7 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     , ((modMask .|. shiftMask, xK_m), windows W.swapMaster)
     , ((modMask .|. shiftMask, xK_j), windows W.swapDown)
     , ((modMask .|. shiftMask, xK_k), windows W.swapUp)
-    , ((modMask, xK_z), sendMessage $ Toggle FULL)
+    , ((modMask, xK_z), sendMessage $ XMonad.Layout.MultiToggle.Toggle FULL)
     , ((modMask, xK_h), sendMessage Shrink)
     , ((modMask, xK_l), sendMessage Expand)
     , ((modMask, xK_t), withFocused $ windows . W.sink)
