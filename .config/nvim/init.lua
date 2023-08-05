@@ -1,4 +1,5 @@
 -- bendo
+-- TODO install harpoon, undotree
 
 -- use :Mason to add LSP
 
@@ -165,6 +166,8 @@ vim.o.clipboard = 'unnamedplus'
 vim.o.breakindent = true
 
 -- Save undo history
+vim.o.swapfile = false
+vim.o.backup = false
 vim.o.undofile = true
 vim.o.undodir = os.getenv('HOME') .. '/.vim/undodir'
 
@@ -179,7 +182,7 @@ vim.wo.signcolumn = 'yes'
 vim.o.scrolloff = 8
 
 -- Decrease update time
-vim.o.updatetime = 250
+vim.o.updatetime = 50
 vim.o.timeout = true
 vim.o.timeoutlen = 300
 
@@ -191,9 +194,14 @@ vim.o.termguicolors = true
 
 -- KEYMAPS -----------------------------------------------------------
 
+vim.keymap.set('n', '<leader>oe', vim.cmd.Ex)
+
 -- move up or down selected text
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
+
+-- keep cursor at place when joining lines
+vim.keymap.set('n', 'J', 'mzJ`z')
 
 -- center searched text
 vim.keymap.set('n', 'n', 'nzzzv')
@@ -201,6 +209,15 @@ vim.keymap.set('n', 'N', 'Nzzzv')
 
 -- paste yanked text, then select and replace
 vim.keymap.set('x', '<leader>p', "\"_dP", { desc = '[P]aste yanked text' })
+
+-- quick search fix
+vim.keymap.set('n', '<C-k>', '<cmd>cnext<CR>zz')
+vim.keymap.set('n', '<C-j>', '<cmd>cprev<CR>zz')
+vim.keymap.set('n', '<leader>k', '<cmd>lnext<CR>zz')
+vim.keymap.set('n', '<leader>j', '<cmd>lprev<CR>zz')
+
+-- make file executable
+vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { silent = true })
 
 -- functional keys
 vim.keymap.set('n', '<F3>', ':set hlsearch! hlsearch?<CR>', { noremap = true, silent = true})
@@ -238,8 +255,12 @@ require('telescope').setup {
   },
 }
 
+vim.keymap.set('n', '<leader>gs', vim.cmd.Git);
+
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
+
+local builtin = require('telescope.builtin')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
@@ -259,6 +280,10 @@ vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { de
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 
+vim.keymap.set('n', '<leader>ps', function()
+  builtin.grep_string({ search = vim.fn.input("Grep > ") })
+end, { desc = '[S]earch word in the project' })
+
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
@@ -266,7 +291,7 @@ require('nvim-treesitter.configs').setup {
   ensure_installed = { 'c', 'cpp', 'lua', 'python', 'rust', 'haskell', 'html', 'java', 'javascript', 'tsx', 'typescript', 'vimdoc', 'vim' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-  auto_install = false,
+  auto_install = true,
 
   highlight = { enable = true },
   indent = { enable = true, disable = { 'python' } },
@@ -360,7 +385,7 @@ local on_attach = function(_, bufnr)
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('<C-h>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -423,6 +448,7 @@ mason_lspconfig.setup_handlers {
 -- nvim-cmp setup
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
+local cmp_select = {behavior = cmp.SelectBehavior.select}
 
 luasnip.config.setup {}
 
@@ -433,6 +459,8 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert {
+    ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
+    ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
