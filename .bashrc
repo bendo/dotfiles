@@ -47,10 +47,21 @@ rightprompt()
     printf "\e[0;93m%*s\e[m" $COLUMNS "$(date +%T)"
 }
 
+file_count()
+{
+    /bin/ls -1A | /usr/bin/wc -l | /bin/sed 's: ::g'
+}
+
+dir_size()
+{
+    /bin/ls -lah | /bin/grep -m 1 total | /bin/sed 's/total //'
+}
+
 export EDITOR=vim
 export PROMPT_COMMAND='settitle; lambda_color; history -a;'
 #export PS1='\[\e${lambdacolor}\]λ\[\e${inputcolor}\] '
-export PS1='\n\[$(tput sc; rightprompt; tput rc)\]\e[0;36m\w\e[m \n\[\e${lambdacolor}\]λ\[\e${inputcolor}\] '
+#export PS1='\n\[$(tput sc; rightprompt; tput rc)\]\e[0;36m\w\e[m \n\[\e${lambdacolor}\]λ\[\e${inputcolor}\] '
+export PS1='\n\[$(tput sc; rightprompt; tput rc)\]\e[0;36m\w\e[m   \e[0;95m$(file_count) files, $(dir_size)\e[m \n\[\e${lambdacolor}\]λ\[\e${inputcolor}\] '
 export PS2=' | '
 
 unset color_prompt force_color_prompt
