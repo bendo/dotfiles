@@ -75,6 +75,14 @@ require('lazy').setup({
     },
   },
 
+  { -- TODO comments
+    'folke/todo-comments.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = {
+      signs = false
+    },
+  },
+
   { -- Theme inspired by Atom
     'navarasu/onedark.nvim',
     priority = 1000,
@@ -100,9 +108,10 @@ require('lazy').setup({
     'lukas-reineke/indent-blankline.nvim',
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help indent_blankline.txt`
+    main = 'ibl',
     opts = {
-      char = '┊',
-      show_trailing_blankline_indent = false,
+      indent = { char = '┊' },
+      scope = { show_start = false},
     },
   },
 
@@ -131,6 +140,12 @@ require('lazy').setup({
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
     build = ":TSUpdate",
+  },
+  {
+    "nvim-neorg/neorg",
+    lazy = false, -- Disable lazy loading as some `lazy.nvim` distributions set `lazy = true` by default
+    version = "*", -- Pin Neorg to the latest stable release
+    config = true,
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -197,7 +212,7 @@ vim.o.termguicolors = true
 
 -- KEYMAPS -----------------------------------------------------------
 
-vim.keymap.set('n', '<leader>oe', vim.cmd.Ex)
+vim.keymap.set('n', '<leader>oe', vim.cmd.Ex, { desc = '[O]pen [E]ditor' })
 
 -- move up or down selected text
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
@@ -260,7 +275,13 @@ require('telescope').setup {
   },
 }
 
-vim.keymap.set('n', '<leader>gs', vim.cmd.Git);
+vim.keymap.set('n', '<leader>gs', vim.cmd.Git, { desc = '[G]it [S]tatus' });
+vim.keymap.set('n', '<leader>tb', require('gitsigns').toggle_current_line_blame, { desc = '[T]oggle [B]lame' });
+vim.keymap.set('n', '<leader>td', require('gitsigns').toggle_deleted, { desc = '[T]oggle [D]eleted' });
+vim.keymap.set('n', '<leader>hS', require('gitsigns').stage_buffer, { desc = '[H]unk [S]tage buffer' })
+vim.keymap.set('n', '<leader>ha', require('gitsigns').stage_hunk, { desc = '[H]unk [A]dd' })
+vim.keymap.set('n', '<leader>hu', require('gitsigns').undo_stage_hunk, { desc = '[H]unk [U]ndo' })
+vim.keymap.set('n', '<leader>hR', require('gitsigns').reset_buffer, { desc = '[H]unk [R]eset buffer' })
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
@@ -451,8 +472,8 @@ mason_lspconfig.setup_handlers {
 }
 
 -- nvim-cmp setup
-local cmp = require 'cmp'
 local luasnip = require 'luasnip'
+local cmp = require 'cmp'
 local cmp_select = {behavior = cmp.SelectBehavior.select}
 
 luasnip.config.setup {}
@@ -497,6 +518,11 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+-- vim.api.nvim_create_autocmd({"BufWrite", "BufWritePre"}, {
+--   pattern = {"*.hs"},
+--   command = "%!stylish-haskell"
+-- })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
