@@ -148,6 +148,11 @@ require('lazy').setup({
     config = true,
   },
   {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    dependencies = { "nvim-lua/plenary.nvim" }
+  },
+  {
     "christoomey/vim-tmux-navigator",
     cmd = {
       "TmuxNavigateLeft",
@@ -280,6 +285,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
+-- .ino files are treated as c++ files
+vim.api.nvim_create_autocmd({'BufRead', 'BufNewFile'}, {
+  pattern = '*.ino',
+  callback = function()
+    vim.bo.filetype = 'cpp'
+  end,
+})
+
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
@@ -294,12 +307,14 @@ require('telescope').setup {
 }
 
 vim.keymap.set('n', '<leader>gs', vim.cmd.Git, { desc = '[G]it [S]tatus' });
-vim.keymap.set('n', '<leader>tb', require('gitsigns').toggle_current_line_blame, { desc = '[T]oggle [B]lame' });
-vim.keymap.set('n', '<leader>td', require('gitsigns').toggle_deleted, { desc = '[T]oggle [D]eleted' });
-vim.keymap.set('n', '<leader>hS', require('gitsigns').stage_buffer, { desc = '[H]unk [S]tage buffer' })
-vim.keymap.set('n', '<leader>ha', require('gitsigns').stage_hunk, { desc = '[H]unk [A]dd' })
-vim.keymap.set('n', '<leader>hu', require('gitsigns').undo_stage_hunk, { desc = '[H]unk [U]ndo' })
-vim.keymap.set('n', '<leader>hR', require('gitsigns').reset_buffer, { desc = '[H]unk [R]eset buffer' })
+vim.keymap.set('n', '<leader>gt', require('gitsigns').toggle_current_line_blame, { desc = '[G]it [T]oggle Blame' });
+vim.keymap.set('n', '<leader>gp', require('gitsigns').preview_hunk, { desc = '[G]it [P]review Hunk' });
+-- vim.keymap.set('n', '<leader>td', require('gitsigns').preview_hunk_inline, { desc = '[T]oggle [D]eleted' });
+-- vim.keymap.set('n', '<leader>hS', require('gitsigns').stage_buffer, { desc = '[H]unk [S]tage buffer' })
+-- vim.keymap.set('n', '<leader>ha', require('gitsigns').stage_hunk, { desc = '[H]unk [A]dd' })
+-- vim.keymap.set('n', '<leader>hR', require('gitsigns').reset_buffer, { desc = '[H]unk [R]eset buffer' })
+-- vim.keymap.set('n', '<leader>gs', require('telescope.builtin').git_status, { desc = '[S]earch [D]iagnostics' })
+vim.keymap.set('n', '<leader>gc', require('telescope.builtin').git_commits, { desc = '[S]earch [D]iagnostics' })
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
