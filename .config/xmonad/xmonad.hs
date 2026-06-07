@@ -11,6 +11,8 @@ import           XMonad.Hooks.EwmhDesktops           (ewmh, fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
 import           XMonad.Hooks.SetWMName
+import           XMonad.Hooks.StatusBar
+import           XMonad.Hooks.StatusBar.PP
 
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.Grid
@@ -26,41 +28,59 @@ import           XMonad.Layout.ThreeColumns
 import qualified XMonad.StackSet                     as W
 
 import           XMonad.Util.EZConfig                (additionalKeys)
+import           XMonad.Util.Loggers
 import           XMonad.Util.NamedScratchpad
 import           XMonad.Util.Run                     (spawnPipe)
+import           XMonad.Util.SpawnOnce
 
 main :: IO ()
-main = do
-    din <- spawnPipe "xmobar"
-    xmonad $ ewmh $ docks $ defaults din
+main =
+    xmonad $ ewmh $ docks $ withEasySB (statusBarProp "xmobar" (pure myXmobarPP)) defToggleStrutsKey $ myConfig
 
-myLogHook :: Handle -> X ()
-myLogHook h = dynamicLogWithPP xmobarPP
+myXmobarPP :: PP
+myXmobarPP = def
     { ppSep     = magenta "  •  "
-    , ppHidden  = xmobarColor "#6c71c4" ""
+    , ppTitleSanitize = xmobarStrip
     , ppCurrent = wrap "" "" . xmobarBorder "Top" "#8be9fd" 2
-    , ppTitle   = xmobarColor "#268bd2" "" . shorten 70
-    , ppVisible = xmobarColor "#839496" "" . wrap "(" ")"
+    , ppHidden  = xmobarColor "#6c71c4" ""
     , ppUrgent  = xmobarColor "#dc322f" "" . wrap " " " "
+    , ppVisible = xmobarColor "#839496" "" . wrap "(" ")"
     , ppLayout  = xmobarColor "#2aa198" ""
-    , ppOutput  = hPutStrLn h
+    , ppOrder = \[ws, l, _, wins] -> [ws, l, wins]
+    , ppExtras = [logTitles formatFocused formatUnfocused]
     }
+    where
+        formatFocused = wrap (white "[") (white "]") . yellow2 . ppWindow
+        formatUnfocused = wrap (lowWhite "[") (lowWhite "]") . blue . ppWindow
+
+        ppWindow :: String -> String
+        ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 30
+
+        blue, lowWhite, magenta, red, white, yellow :: String -> String
+        magenta = xmobarColor "#ff79c6" ""
+        blue = xmobarColor "#bd93f9" ""
+        white = xmobarColor "#f8f8f2" ""
+        yellow = xmobarColor "#f1fa8c" ""
+        yellow2 = xmobarColor "#ffcd3c" ""
+        red = xmobarColor "#ff5555" ""
+        lowWhite = xmobarColor "#bbbbbb" ""
 
 magenta :: String -> String
 magenta  = xmobarColor "#ff79c6" ""
 
 myStartupHook :: X ()
-myStartupHook = spawn "xmobar ~/.xmobarrc"
+myStartupHook = do
+    spawnOnce "feh --bg-fill --no-fehbg ~/img/bg/bg-5.jpg"
+    spawnOnce "picom -b --config ~/.config/picom/picom.conf"
 
-defaults din = def
-    { terminal           = "urxvtc"
+myConfig = def
+    { terminal           = "kitty"
     , focusFollowsMouse  = False
     , clickJustFocuses   = False
     , borderWidth        = 1
     , normalBorderColor  = gray
     , focusedBorderColor = blue
     , modMask            = mod4Mask
-    , logHook            = myLogHook din
     , workspaces         = myWorkspaces
     , keys               = myKeys
     , mouseBindings      = myMouseBindings
@@ -76,15 +96,17 @@ myManageHook :: ManageHook
 myManageHook = namedScratchpadManageHook myScratchPads <+> composeAll
     [ className =? "chromium"           --> doShift "4"
     , className =? "Sabaki"             --> doFloat
-    , className =? "pentablet"          --> doFloat
+    , className =? "PenTablet"          --> doFloat
     , resource  =? "desktop_window"     --> doIgnore
     , className =? "Galculator"         --> doFloat
     , className =? "zoom"               --> doFloat
+    , className =? "obsidian"           --> doFloat
     , className =? "Gimp"               --> doFloat
     , className =? "Gitk"               --> doCenterFloat
     , className =? "XCalc"              --> doFloat
     , className =? "MPlayer"            --> doFloat
     , className =? "minecraft-launcher" --> doFloat
+    , className =? "Trezor Suite"       --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
 myLayouts = smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
@@ -98,6 +120,7 @@ myLayouts = smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
                 ratio3 = 1/2.5
                 delta = 2/100
                 delta3 = 3/100
+
 
 black = "#020202"
 gray  = "#7c7c7c"
@@ -117,15 +140,15 @@ tabConfig = def
 
 myKeys :: XConfig Layout -> M.Map (KeyMask, KeySym) (X ())
 myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
-    [ ((modMask, xK_Return), spawn $ XMonad.terminal conf)
+    [ ((modMask, xK_a), spawn $ XMonad.terminal conf)
     , ((modMask, xK_x), spawn "xkill")
     , ((modMask .|. shiftMask, xK_l), spawn "lock")
     , ((modMask, xK_d), spawn "dmenu_run -fn '-12'")
     , ((modMask, xK_q), kill)
-    , ((modMask, xK_space), sendMessage NextLayout)
-    , ((modMask .|. shiftMask, xK_space), setLayout $ XMonad.layoutHook conf)
+    , ((modMask, xK_Delete), sendMessage NextLayout)
+    , ((modMask .|. shiftMask, xK_Delete), setLayout $ XMonad.layoutHook conf)
     , ((modMask, xK_n), refresh)
-    , ((modMask, xK_Tab), windows W.focusDown)
+    , ((modMask, xK_BackSpace), windows W.focusDown)
     , ((modMask, xK_j), windows W.focusDown)
     , ((modMask, xK_k), windows W.focusUp)
     , ((modMask, xK_m), windows W.focusMaster)
@@ -139,14 +162,19 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     , ((modMask, xK_l), sendMessage Expand)
     , ((modMask, xK_t), withFocused $ windows . W.sink)
     , ((modMask .|. shiftMask, xK_t), rectFloatFocused)
+    , ((modMask, xK_Left), leftFloatFocused)
+    , ((modMask, xK_Right), rightFloatFocused)
     , ((modMask, xK_o), namedScratchpadAction myScratchPads "term")
     , ((modMask, xK_f), namedScratchpadAction myScratchPads "firefox")
-    , ((modMask, xK_a), namedScratchpadAction myScratchPads "ghci")
+    , ((modMask, xK_i), namedScratchpadAction myScratchPads "ghci")
     , ((modMask .|. shiftMask, xK_f), fullFloatFocused)
     , ((modMask, xK_comma), sendMessage (IncMasterN 1))
     , ((modMask, xK_period), sendMessage (IncMasterN (-1)))
     , ((modMask .|. shiftMask, xK_q), io exitSuccess)
     , ((modMask, xK_r), restart "xmonad" True)
+    , ((0, 0x1008ff11), spawn "amixer -q sset Master 2%-")
+    , ((0, 0x1008ff13), spawn "amixer -q sset Master 2%+")
+    , ((0, 0x1008ff12), spawn "amixer set Master toggle")
     , ((0, xK_Print), spawn "scrot '%Y-%m-%d-%T_$wx$h.png' -e 'mv $f ~'")
     ]
     ++
@@ -163,6 +191,8 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
         rectFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery doMyRectFloat f
             where
               doMyRectFloat = doRectFloat $ W.RationalRect 0.05 0.05 0.9 0.9
+        leftFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery (doRectFloat $ leftBarRect) f
+        rightFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery (doRectFloat $ rightBarRect) f
 
 myMouseBindings :: XConfig l -> M.Map (KeyMask, Button) (Window -> X ())
 myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
@@ -180,7 +210,7 @@ myScratchPads = [ NS "term" spawnTerm findTerm manageTerm
                 , NS "ghci" spawnGhci findGhci manageGhci
                 ]
                     where
-                        spawnTerm = "urxvtc -name term-scr"
+                        spawnTerm = "kitty --name term-scr"
                         findTerm = resource =? "term-scr"
                         manageTerm = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
 
@@ -188,6 +218,6 @@ myScratchPads = [ NS "term" spawnTerm findTerm manageTerm
                         findFirefox = className =? "firefox"
                         manageFirefox = doRectFloat $ rightBarRect
 
-                        spawnGhci = "urxvtc -name ghci-scr -e stack ghci"
+                        spawnGhci = "kitty --name ghci-scr -e stack ghci"
                         findGhci = resource =? "ghci-scr"
                         manageGhci = doRectFloat $ W.RationalRect 0.2 0.2 0.6 0.6
