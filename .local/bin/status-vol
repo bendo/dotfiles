@@ -33,6 +33,4 @@ else
 	color=$red
 	icon="" # fa-volume-off f026
 fi
-echo "<fc=$color><fn=1>$icon</fn> $status</fc>"
-
-
+echo "<fc=$color><fn=1>$icon</fn> $status%</fc>"

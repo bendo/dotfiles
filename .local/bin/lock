@@ -1,0 +1,5 @@
+#!/bin/bash
+rm /tmp/screen-locked.png /tmp/screen-locked2.png
+scrot /tmp/screen-locked.png
+convert /tmp/screen-locked.png -blur 6x6 /tmp/screen-locked2.png
+i3lock -i /tmp/screen-locked2.png

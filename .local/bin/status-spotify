@@ -1,0 +1,27 @@
+#!/bin/bash
+ 
+bar_length=20
+title_length=75
+bar_icons="#."
+ 
+data=$(playerctl -p spotify metadata --format "{{ status }}: {{ artist }} - {{ title }}")
+position_formatted=$(playerctl -p spotify metadata --format "- {{ duration(position)}}")
+length_formatted=$(playerctl -p spotify metadata --format "{{duration(mpris:length)}}")
+ 
+position=$(playerctl -p spotify metadata --format "{{position}}")
+length=$(playerctl -p spotify metadata "mpris:length")
+ 
+progress=$((bar_length * position / length))
+ 
+bar="["
+for i in $(seq 1 $progress);
+do
+    bar+=${bar_icons:0:1}
+done
+for i in $(seq $((progress+1)) $bar_length);
+do
+    bar+=${bar_icons:1:1}
+done
+bar+="]"
+ 
+echo "  ${data::title_length} $position_formatted $bar $length_formatted"

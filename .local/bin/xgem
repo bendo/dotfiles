@@ -1,0 +1,12 @@
+#!/bin/sh
+
+yellow=#b58900
+orange=#cb4b16
+red=#dc322f
+magenta=#d33682
+green=#859900
+
+color=$green
+lessons="$(g -c)"
+icon="" # fa-graduation-cap f19d
+echo "<fc=$color><fn=1>$icon</fn> $lessons</fc>"

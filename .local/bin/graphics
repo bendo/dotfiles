@@ -1,0 +1,1 @@
+glxinfo|egrep "OpenGL vendor" | egrep "NVIDIA|Intel"

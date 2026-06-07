@@ -1,0 +1,2 @@
+#!/bin/bash
+diff <(echo $1) <(echo $2)
