@@ -29,7 +29,7 @@ keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { silent = true })
 
 -- functional keys
 keymap.set('n', '<F3>', ':set hlsearch! hlsearch?<CR>', { noremap = true, silent = true})
-keymap.set('n', '<F2>', ':let &cc = &cc == "" ? "90" : ""<CR>', { noremap = true, silent = true})
+keymap.set('n', '<F2>', ':let &cc = &cc == "" ? "100" : ""<CR>', { noremap = true, silent = true})
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
