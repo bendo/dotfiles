@@ -27,23 +27,26 @@ return {
     { "<leader>om", "<cmd>Obsidian template<CR>", desc = "Obsidian template" },
   },
 
-  opts = {
-    legacy_commands = false, -- this will be removed in 4.0.0
-    ui = {
-      enable = false,
-    },
-    workspaces = {
-      {
-        name = "notes",
-        path = "~/notes",
+  opts = function()
+    return {
+      legacy_commands = false, -- this will be removed in 4.0.0
+      ui = {
+        enable = false,
       },
-      {
-        name = "work",
-        path = "~/code/obsidian-vault/work",
+      workspaces = {
+        {
+          name = "notes",
+          path = "~/notes",
+        },
+        {
+          name = "work",
+          path = "~/code/obsidian-vault/work",
+        },
       },
-    },
-    templates = {
-      folder = "templates",
-    },
-  },
+      note_id_func = require("obsidian.builtin").title_id,
+      templates = {
+        folder = "templates",
+      },
+    }
+  end,
 }
