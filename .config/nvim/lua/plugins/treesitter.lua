@@ -12,7 +12,7 @@ return {
         install_dir = vim.fn.stdpath("data") .. "/site",
       })
 
-      ts.install({ 'bash', 'c', 'cpp', 'lua', 'python', 'rust', 'haskell', 'html', 'java', 'javascript', 'markdown', 'markdown_inline', 'tsx', 'typescript', 'vimdoc', 'vim', 'norg' })
+      ts.install({ 'bash', 'c', 'cpp', 'lua', 'python', 'rust', 'haskell', 'html', 'java', 'javascript', 'markdown', 'markdown_inline', 'tsx', 'typescript', 'vimdoc', 'vim'})
 
       -- auto-start highlights & indentation
       vim.api.nvim_create_autocmd('FileType', {
