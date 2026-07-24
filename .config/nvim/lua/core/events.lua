@@ -1,8 +1,8 @@
 local autocmd = vim.api.nvim_create_autocmd
-
 local augroup = vim.api.nvim_create_augroup
 
 local yank_group = augroup('YankHighlight', { clear = true })
+local trim_group = augroup('TrimWhitespace', { clear = true })
 
 autocmd('TextYankPost', {
   group = yank_group,
@@ -18,4 +18,14 @@ autocmd({'BufRead', 'BufNewFile'}, {
   callback = function()
     vim.bo.filetype = 'cpp'
   end
+})
+
+autocmd('BufWritePre', {
+  group = trim_group,
+  pattern = '*',
+  callback = function()
+    local view = vim.fn.winsaveview()
+    vim.cmd([[keeppatterns %s/\s\+$//e]])
+    vim.fn.winrestview(view)
+  end,
 })
