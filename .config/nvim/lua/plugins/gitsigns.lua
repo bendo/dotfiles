@@ -14,6 +14,7 @@ return {
           vim.keymap.set('n', '<leader>gd', function() gs.diffthis('main') end, { desc = 'Diff this file against main'})
           vim.keymap.set('n', '<leader>gh', gs.preview_hunk, { desc = 'Preview hunk' })
           vim.keymap.set('n', '<leader>gt', gs.toggle_current_line_blame, { desc = 'Git toggle blame' });
+          vim.keymap.set('n', '<leader>gr', gs.reset_hunk, { desc = 'Git reset hunk' });
           -- vim.keymap.set('n', '<leader>td', gs.preview_hunk_inline, { desc = 'Toggle deleted' });
           -- vim.keymap.set('n', '<leader>hS', gs.stage_buffer, { desc = 'Hunk stage buffer' })
           -- vim.keymap.set('n', '<leader>ha', gs.stage_hunk, { desc = 'Hunk add' })

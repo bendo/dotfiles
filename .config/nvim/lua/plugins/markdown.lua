@@ -5,5 +5,23 @@ return {
   -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
   ---@module 'render-markdown'
   ---@type render.md.UserConfig
-  opts = {},
+  opts = {
+    heading = {
+      position = 'inline',
+      sign = false,
+      icons = { '' },
+      backgrounds = {},
+    },
+    bullet = {
+      icons = { '-' },
+      highlight = '@markup.link',
+    },
+    checkbox = {
+      custom = {
+        todo = {
+          highlight = 'DiagnosticWarn',
+        },
+      },
+    },
+  },
 }

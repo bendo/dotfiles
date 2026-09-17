@@ -12,7 +12,28 @@ return {
         install_dir = vim.fn.stdpath("data") .. "/site",
       })
 
-      ts.install({ 'bash', 'c', 'cpp', 'lua', 'python', 'rust', 'haskell', 'html', 'java', 'javascript', 'markdown', 'markdown_inline', 'tsx', 'typescript', 'vimdoc', 'vim'})
+      if vim.fn.executable('tree-sitter') == 1 then
+        ts.install({
+          'bash',
+          'c',
+          'cpp',
+          'lua',
+          'python',
+          'rust',
+          'haskell',
+          'html',
+          'java',
+          'javascript',
+          'markdown',
+          'markdown_inline',
+          'properties',
+          'sql',
+          'tsx',
+          'typescript',
+          'vimdoc',
+          'vim',
+        })
+      end
 
       -- auto-start highlights & indentation
       vim.api.nvim_create_autocmd('FileType', {
