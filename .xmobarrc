@@ -1,16 +1,16 @@
 -- weather stations : http://weather.rap.ucar.edu/surface/stations.txt
 -- font awesome - arch linux package : ttf-font-awesome
 Config
-       { font = "xft:xos4 Terminus:pixelsize=11:antialias=true:hinting=true"
-       , additionalFonts = [ "xft:FontAwesome:pixelsize=9:antialias=true:hinting=true" ]
+       { font = "xft:xos4 Terminus-11"
+       , additionalFonts = [ "xft:FontAwesome-9" ]
        , borderColor = "black"
        , border = TopB
        , bgColor = "black"
        , fgColor = "#586e75"
        , alpha = 100
        , position = Top
-       , textOffset = -1
-       , iconOffset = -1
+       , textOffset = 0
+       , iconOffset = 2
        , lowerOnStart = True
        , pickBroadest = False
        , persistent = False
@@ -19,8 +19,8 @@ Config
        , allDesktops = True
        , overrideRedirect = True
        , commands = 
-            [ Run Weather "EDDM"
-                [ "-t", "<fc=#93a1a1><fn=1>\xf0c2</fn> MUC: <tempC>°</fc>"
+            [ Run Weather "EDDP"
+                [ "-t", "<fc=#93a1a1><fn=1>\xe302</fn>  <weather> <tempC>°C</fc>"
                 , "-L", "18"
                 , "-H", "25"
                 , "--low", "#93a1a1"
@@ -44,24 +44,13 @@ Config
                 , "--off-icon-pattern", "<fn=1>\xf1e6</fn>"
                 , "--on-icon-pattern", "<fn=1>\xf1e6</fn>"
                 ] 10
-            , Run Date "<fc=#268bd2><fn=1>\xf073</fn> %a %_d %b %Y | d.%j w.%W</fc>   <fc=#2AA198><fn=1></fn> %H:%M:%S</fc>" "date" 10
-            , Run Wireless "wlp4s0"
-                [ "-a", "l"
-                , "-x", "-"
-                , "-t", "<fc=#6c71c4><fn=1>\xf1eb</fn> <essid> <quality>%</fc>"
-                , "-L", "50"
-                , "-H", "75"
-                -- , "-l", "#dc322f" -- red
-                , "-l", "#6c71c4" -- violet
-                , "-n", "#6c71c4" -- violet
-                , "-h", "#6c71c4" -- violet
-                ] 10
+            , Run Date "<fc=#268bd2><fn=1>\xf073</fn> %a %_d %b %Y | d.%j w.%W</fc>     <fc=#FC6A03><fn=1></fn> %H:%M:%S</fc>" "date" 10
             , Run Com "status-vol" [] "vol" 5
-            , Run Com "status-keyboard" [] "kb" 10
-            , Run Com "msg" [] "msg" 10
-            , Run StdinReader
+            , Run Com "xgem" [] "gem" 10
+            , Run Com "/home/bendo/.local/bin/status-spotify" [] "music" 10
+            , Run XMonadLog
             ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = " %StdinReader% }{%msg%   %vol%   %battery%   %wlp4s0wi%   %date%   %EDDM%   %kb% "
+       , template = " %XMonadLog% } %music% {%gem%     %vol%     %date%     %EDDP%"
        }
