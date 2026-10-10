@@ -1,18 +1,32 @@
 #!/bin/bash
- 
+
+# Hide the music section when Spotify is stopped or unavailable.
+status=$(playerctl -p spotify status 2>/dev/null) || exit 0
+[[ "$status" == "Playing" || "$status" == "Paused" ]] || exit 0
+
 bar_length=20
 title_length=75
 bar_icons="#."
- 
+
 data=$(playerctl -p spotify metadata --format "{{ status }}: {{ artist }} - {{ title }}")
+if (( ${#data} > title_length )); then
+    data="${data:0:title_length-1}…"
+fi
 position_formatted=$(playerctl -p spotify metadata --format "- {{ duration(position)}}")
 length_formatted=$(playerctl -p spotify metadata --format "{{duration(mpris:length)}}")
- 
+
 position=$(playerctl -p spotify metadata --format "{{position}}")
 length=$(playerctl -p spotify metadata "mpris:length")
- 
+
+# Track metadata can briefly be unavailable while Spotify changes tracks.
+[[ "$position" =~ ^[0-9]+$ && "$length" =~ ^[0-9]+$ ]] || exit 0
+position=$((10#$position))
+length=$((10#$length))
+(( length > 0 )) || exit 0
+(( position > length )) && position=$length
+
 progress=$((bar_length * position / length))
- 
+
 bar="["
 for i in $(seq 1 $progress);
 do
@@ -23,5 +37,5 @@ do
     bar+=${bar_icons:1:1}
 done
 bar+="]"
- 
-echo "  ${data::title_length} $position_formatted $bar $length_formatted"
+
+echo "<fn=1></fn>  $data $position_formatted $bar $length_formatted"
