@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 import qualified Data.Map                            as M
 import           Data.Monoid
 import           System.Exit
@@ -7,6 +10,7 @@ import           XMonad
 import           XMonad.Actions.CopyWindow
 
 import           XMonad.Hooks.DynamicLog
+import           XMonad.Hooks.InsertPosition         (insertPosition, Position(End), Focus(Newer))
 import           XMonad.Hooks.EwmhDesktops           (ewmh, fullscreenEventHook)
 import           XMonad.Hooks.ManageDocks
 import           XMonad.Hooks.ManageHelpers
@@ -93,7 +97,7 @@ myWorkspaces :: [WorkspaceId]
 myWorkspaces = map show [1..9] ++ ["λ","π","ω"]
 
 myManageHook :: ManageHook
-myManageHook = namedScratchpadManageHook myScratchPads <+> composeAll
+myManageHook = insertPosition End Newer <+> namedScratchpadManageHook myScratchPads <+> composeAll
     [ className =? "chromium"           --> doShift "4"
     , className =? "Sabaki"             --> doFloat
     , className =? "PenTablet"          --> doFloat
@@ -109,9 +113,28 @@ myManageHook = namedScratchpadManageHook myScratchPads <+> composeAll
     , className =? "Trezor Suite"       --> doFloat
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
-myLayouts = smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
+-- Keep one master in its chosen half, even when there are no other windows.
+-- Remaining windows share the opposite half from top to bottom.
+data SnapSide = SnapLeft | SnapRight deriving (Show, Read, Eq)
+data SnapTiles a = SnapTiles SnapSide deriving (Show, Read)
+
+instance LayoutClass SnapTiles a where
+    pureLayout (SnapTiles side) rect stack = zip ws rectangles
+        where
+            ws = W.integrate stack
+            (left, right) = splitHorizontallyBy (1/2 :: Rational) rect
+            (masterRect, stackRect) = case side of
+                SnapLeft  -> (left, right)
+                SnapRight -> (right, left)
+            rectangles = masterRect : splitVertically (length ws - 1) stackRect
+
+    description (SnapTiles SnapLeft)  = "SnapLeft"
+    description (SnapTiles SnapRight) = "SnapRight"
+
+-- Reserve xmobar's space even when the existing FULL toggle is active.
+myLayouts = avoidStruts $ smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
     where
-        standardLayout = avoidStruts ( tall ||| Full ||| threeCol ||| Grid )
+        standardLayout = tall ||| Full ||| SnapTiles SnapLeft ||| SnapTiles SnapRight ||| threeCol ||| Grid
             where
                 threeCol = magnifiercz' 1.3 $ ThreeColMid nmaster delta3 ratio3
                 tall = Tall nmaster delta ratio
@@ -120,6 +143,27 @@ myLayouts = smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
                 ratio3 = 1/2.5
                 delta = 2/100
                 delta3 = 3/100
+
+-- Explicit layout shortcuts must also work when the FULL toggle is active.
+selectTiledLayout :: String -> X ()
+selectTiledLayout name = do
+    active <- withWindowSet (isToggleActive FULL . W.workspace . W.current)
+    case active of
+        Just True -> sendMessage $ XMonad.Layout.MultiToggle.Toggle FULL
+        _         -> pure ()
+    sendMessage $ JumpToLayout name
+
+snapFocused :: SnapSide -> X ()
+snapFocused side = do
+    withFocused $ \w -> windows (W.swapMaster . W.sink w)
+    selectTiledLayout $ case side of
+        SnapLeft  -> "SnapLeft"
+        SnapRight -> "SnapRight"
+
+maximizeFocused :: X ()
+maximizeFocused = do
+    withFocused $ windows . W.sink
+    selectTiledLayout "Full"
 
 
 black = "#020202"
@@ -162,8 +206,9 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     , ((modMask, xK_l), sendMessage Expand)
     , ((modMask, xK_t), withFocused $ windows . W.sink)
     , ((modMask .|. shiftMask, xK_t), rectFloatFocused)
-    , ((modMask, xK_Left), leftFloatFocused)
-    , ((modMask, xK_Right), rightFloatFocused)
+    , ((modMask, xK_Left), snapFocused SnapLeft)
+    , ((modMask, xK_Right), snapFocused SnapRight)
+    , ((modMask, xK_Up), maximizeFocused)
     , ((modMask, xK_o), namedScratchpadAction myScratchPads "term")
     , ((modMask, xK_f), namedScratchpadAction myScratchPads "firefox")
     , ((modMask, xK_i), namedScratchpadAction myScratchPads "ghci")
@@ -191,8 +236,6 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
         rectFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery doMyRectFloat f
             where
               doMyRectFloat = doRectFloat $ W.RationalRect 0.05 0.05 0.9 0.9
-        leftFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery (doRectFloat $ leftBarRect) f
-        rightFloatFocused = withFocused $ \f -> windows =<< appEndo `fmap` runQuery (doRectFloat $ rightBarRect) f
 
 myMouseBindings :: XConfig l -> M.Map (KeyMask, Button) (Window -> X ())
 myMouseBindings XConfig {XMonad.modMask = modMask} = M.fromList
