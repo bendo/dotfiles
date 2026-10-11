@@ -131,10 +131,23 @@ instance LayoutClass SnapTiles a where
     description (SnapTiles SnapLeft)  = "SnapLeft"
     description (SnapTiles SnapRight) = "SnapRight"
 
+-- Stack windows in the centered half of the available screen, focused first.
+data SnapCenter a = SnapCenter deriving (Show, Read)
+
+instance LayoutClass SnapCenter a where
+    pureLayout SnapCenter (Rectangle x y width height) stack =
+        [(w, centered) | w <- W.focus stack : W.up stack ++ W.down stack]
+        where
+            centeredWidth = width `div` 2
+            centered = Rectangle (x + fromIntegral ((width - centeredWidth) `div` 2))
+                                 y centeredWidth height
+
+    description SnapCenter = "SnapCenter"
+
 -- Reserve xmobar's space even when the existing FULL toggle is active.
 myLayouts = avoidStruts $ smartBorders $ mkToggle (NOBORDERS ?? FULL ?? EOT) standardLayout
     where
-        standardLayout = tall ||| Full ||| SnapTiles SnapLeft ||| SnapTiles SnapRight ||| threeCol ||| Grid
+        standardLayout = tall ||| Full ||| SnapTiles SnapLeft ||| SnapTiles SnapRight ||| SnapCenter ||| threeCol ||| Grid
             where
                 threeCol = magnifiercz' 1.3 $ ThreeColMid nmaster delta3 ratio3
                 tall = Tall nmaster delta ratio
@@ -209,6 +222,7 @@ myKeys conf@XConfig {XMonad.modMask = modMask} = M.fromList $
     , ((modMask, xK_Left), snapFocused SnapLeft)
     , ((modMask, xK_Right), snapFocused SnapRight)
     , ((modMask, xK_Up), maximizeFocused)
+    , ((modMask, xK_Down), selectTiledLayout "SnapCenter")
     , ((modMask, xK_o), namedScratchpadAction myScratchPads "term")
     , ((modMask, xK_f), namedScratchpadAction myScratchPads "firefox")
     , ((modMask, xK_i), namedScratchpadAction myScratchPads "ghci")
